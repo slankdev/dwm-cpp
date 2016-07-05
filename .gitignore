@@ -1,4 +1,5 @@
 # Object files
+dwm
 *.o
 *.ko
 *.obj
