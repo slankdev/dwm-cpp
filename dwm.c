@@ -2040,6 +2040,8 @@ view(const Arg *arg)
 	arrange(selmon);
 }
 
+
+
 Client *
 wintoclient(Window w)
 {
