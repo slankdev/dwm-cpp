@@ -7,6 +7,11 @@ Requirements
 ------------
 In order to build dwm you need the Xlib header files.
 
+ - build-essential
+ - libx11-dev
+ - libxinerama-dev
+ - sharutils
+
 
 Installation
 ------------
