@@ -54,3 +54,10 @@ Configuration
 -------------
 The configuration of dwm is done by creating a custom config.h
 and (re)compiling the source code.
+
+
+Slankdev's Extend
+-------------
+slankdev extended below
+ - Right/Left tag swicher as view_{right,left}() in dwm.c
+
