@@ -1,5 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
+
+#define MY_STATUS \
+    sprintf(stext, "wlan0:%s dwm-%s.1-slankdev",   \
+        get_ipaddr("wlan0"),             \
+        VERSION                          \
+        );
+
 /* appearance */
 static const char *fonts[] = {
 	"monospace:size=10"
@@ -84,6 +91,10 @@ static Key keys[] = {
 	/* modifier                     key        function        argument */
     { MODKEY,                       XK_l,      view_right,     {0} }, // by slankdev
     { MODKEY,                       XK_h,      view_left,      {0} }, // by slankdev
+
+    { MODKEY|ShiftMask|ControlMask, XK_l,      view_right,     {0} }, // by slankdev
+    { MODKEY|ShiftMask|ControlMask, XK_h,      view_left,      {0} }, // by slankdev
+
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_f,      spawn,          {.v = browsercmd } },

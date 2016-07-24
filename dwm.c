@@ -44,6 +44,18 @@
 #include "drw.h"
 #include "util.h"
 
+
+/* Headers for Additional functon by slankdev */
+/* #include <string.h> #<{(| for strncpy |)}># */
+/* #include <unistd.h> #<{(| for close |)}># */
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+
+
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
@@ -240,6 +252,7 @@ static void zoom(const Arg *arg);
 static void view_left(const Arg *arg);
 static void view_right(const Arg *arg);
 void movestack(const Arg *arg);
+char* get_ipaddr(const char* interface);
 
 
 /* variables */
@@ -2000,8 +2013,9 @@ updatetitle(Client *c)
 void
 updatestatus(void)
 {
-	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
-		strcpy(stext, "dwm-"VERSION);
+	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext))) {
+        MY_STATUS
+    }
 	drawbar(selmon);
 }
 
@@ -2228,3 +2242,19 @@ movestack(const Arg *arg) {
 }
 
 
+
+char* get_ipaddr(const char* interface)
+{
+    int fd;
+    struct ifreq ifr;
+    static char str[32];
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    ifr.ifr_addr.sa_family = AF_INET;
+    strncpy(ifr.ifr_name, interface, IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFADDR, &ifr);
+    close(fd);
+
+    sprintf(str, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+    return str;
+}
