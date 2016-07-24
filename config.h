@@ -76,7 +76,8 @@ static const char *dmenucmd[] = { "dmenu_run",
     "-sf", selfgcolor , 
     NULL };
 
-static const char *termcmd[]  = { "urxvt", NULL };
+static const char *termcmd[]    = { "urxvt"   , NULL };
+static const char *browsercmd[] = { "chromium", NULL };
 
 
 static Key keys[] = {
@@ -85,6 +86,7 @@ static Key keys[] = {
     { MODKEY,                       XK_h,      view_left,      {0} }, // by slankdev
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY,                       XK_f,      spawn,          {.v = browsercmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
