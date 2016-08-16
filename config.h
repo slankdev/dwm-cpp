@@ -2,14 +2,14 @@
 
 
 #define MY_STATUS \
-    sprintf(stext, "dwm-%s.1-slankdev",   \
+    sprintf(stext, "dwm-%s",   \
         VERSION                          \
         );
 
 
 /* appearance */
-static const char *fonts[] = { "monospace:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
+static const char *fonts[] = { "monospace:size=17" };
+static const char dmenufont[]       = "monospace:size=17";
 static const char normbordercolor[] = "#444444";
 static const char normbgcolor[]     = "#222222";
 static const char normfgcolor[]     = "#bbbbbb";
@@ -26,7 +26,7 @@ static const int topbar             = 1;        /* 0 means bottom bar */
 
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
+static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -46,7 +46,7 @@ static const Rule rules[] = {
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
+static const int resizehints = False;    /* 1 means respect size hints in tiled resizals */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -110,8 +110,6 @@ static Key keys[] = {
 	TAGKEYS(                        XK_5,                      4)
 	TAGKEYS(                        XK_6,                      5)
 	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
 	// { MODKEY,                       XK_Return, zoom,           {0} },
 	// { MODKEY,                       XK_b,      togglebar,      {0} },
 	// { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },

@@ -59,3 +59,6 @@ uninstall:
 	@rm -f ${DESTDIR}${MANPREFIX}/man1/dwm.1
 
 .PHONY: all options clean dist install uninstall
+
+re: clean all
+
