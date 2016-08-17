@@ -26,3 +26,4 @@ version 6.1をフォークして自分なりに改造してます
 ## TODO
 
  - else forってなんか見間違えそうなコードがあるからそこを修正する
+ - macのかな/英数キーをmodキー　showkey xmodmap -pke
