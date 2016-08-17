@@ -1711,7 +1711,7 @@ tile(Monitor *m)
 }
 
 void
-togglebar(const Arg *arg)
+togglebar(const Arg *arg)  // toggle status bar
 {
 	selmon->showbar = !selmon->showbar;
 	updatebarpos(selmon);
