@@ -65,7 +65,7 @@ drw_create(Display *dpy, int screen, Window root, unsigned int w, unsigned int h
 {
 	Drw *drw;
 
-	drw = ecalloc(1, sizeof(Drw));
+	drw = (Drw*)ecalloc(1, sizeof(Drw));
 	drw->dpy = dpy;
 	drw->screen = screen;
 	drw->root = root;
@@ -136,7 +136,7 @@ drw_font_xcreate(Drw *drw, const char *fontname, FcPattern *fontpattern)
 		die("no font specified.\n");
 	}
 
-	font = ecalloc(1, sizeof(Fnt));
+	font = (Fnt*)ecalloc(1, sizeof(Fnt));
 	font->xfont = xfont;
 	font->pattern = pattern;
 	font->ascent = xfont->ascent;
@@ -184,7 +184,7 @@ drw_clr_create(Drw *drw, const char *clrname)
 {
 	Clr *clr;
 
-	clr = ecalloc(1, sizeof(Clr));
+	clr = (Clr*)ecalloc(1, sizeof(Clr));
 	if (!XftColorAllocName(drw->dpy, DefaultVisual(drw->dpy, drw->screen),
 	                       DefaultColormap(drw->dpy, drw->screen),
 	                       clrname, &clr->rgb))
@@ -382,7 +382,7 @@ drw_cur_create(Drw *drw, int shape)
 {
 	Cur *cur;
 
-	cur = ecalloc(1, sizeof(Cur));
+	cur = (Cur*)ecalloc(1, sizeof(Cur));
 	cur->cursor = XCreateFontCursor(drw->dpy, shape);
 
 	return cur;
