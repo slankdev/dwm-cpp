@@ -29,8 +29,10 @@ CPPFLAGS =  -D_BSD_SOURCE -D_POSIX_C_SOURCE=2 -DVERSION=\"${VERSION}\" ${XINERAM
 CPPFLAGS += -D_DEFAULT_SOURCE 
 
 CFLAGS   =  -std=c99
-CFLAGS   += -pedantic -Wall -Wno-deprecated-declarations -Os ${INCS} ${CPPFLAGS}
-CFLAGS   += -g -O0 -Wno-unused-function
+CFLAGS   += -pedantic
+CFLAGS   += -Wall -Wextra
+CFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter
+CFLAGS   += -g -O0 -Os ${INCS} ${CPPFLAGS}
 
 LDFLAGS  = -s ${LIBS}
 

@@ -173,21 +173,21 @@ static Monitor *createmon(void);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
-static Monitor *dirtomon(int dir);
+/* static Monitor *dirtomon(int dir); // Disabled by slankdev */
 static void drawbar(Monitor *m);
 static void drawbars(void);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void focus(Client *c);
 static void focusin(XEvent *e);
-static void focusmon(const Arg *arg);
+/* static void focusmon(const Arg *arg); // Disabled by slankdev */
 static void focusstack(const Arg *arg);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
 static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
-static void incnmaster(const Arg *arg);
+/* static void incnmaster(const Arg *arg); // Disabled by slankdev */
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
@@ -219,9 +219,9 @@ static void showhide(Client *c);
 static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
-static void tagmon(const Arg *arg);
+/* static void tagmon(const Arg *arg); // Disabled by slankdev */
 static void tile(Monitor *);
-static void togglebar(const Arg *arg);
+/* static void togglebar(const Arg *arg); // Disabled by slankdev */
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
@@ -707,20 +707,21 @@ detachstack(Client *c)
 	}
 }
 
-Monitor *
-dirtomon(int dir)
-{
-	Monitor *m = NULL;
-
-	if (dir > 0) {
-		if (!(m = selmon->next))
-			m = mons;
-	} else if (selmon == mons)
-		for (m = mons; m->next; m = m->next);
-	else
-		for (m = mons; m->next != selmon; m = m->next);
-	return m;
-}
+/* Disabled by slankdev */
+/* Monitor * */
+/* dirtomon(int dir) */
+/* { */
+/* 	Monitor *m = NULL; */
+/*  */
+/* 	if (dir > 0) { */
+/* 		if (!(m = selmon->next)) */
+/* 			m = mons; */
+/* 	} else if (selmon == mons) */
+/* 		for (m = mons; m->next; m = m->next); */
+/* 	else */
+/* 		for (m = mons; m->next != selmon; m = m->next); */
+/* 	return m; */
+/* } */
 
 void
 drawbar(Monitor *m)
@@ -848,20 +849,21 @@ focusin(XEvent *e)
 		setfocus(selmon->sel);
 }
 
-void
-focusmon(const Arg *arg)
-{
-	Monitor *m;
-
-	if (!mons->next)
-		return;
-	if ((m = dirtomon(arg->i)) == selmon)
-		return;
-	unfocus(selmon->sel, 0); /* s/1/0/ fixes input focus issues
-					in gedit and anjuta */
-	selmon = m;
-	focus(NULL);
-}
+/* Disabled by slankdev */
+/* void */
+/* focusmon(const Arg *arg) */
+/* { */
+/* 	Monitor *m; */
+/*  */
+/* 	if (!mons->next) */
+/* 		return; */
+/* 	if ((m = dirtomon(arg->i)) == selmon) */
+/* 		return; */
+/* 	unfocus(selmon->sel, 0); #<{(| s/1/0/ fixes input focus issues */
+/* 					in gedit and anjuta |)}># */
+/* 	selmon = m; */
+/* 	focus(NULL); */
+/* } */
 
 void
 focusstack(const Arg *arg)
@@ -999,12 +1001,13 @@ grabkeys(void)
 	}
 }
 
-void
-incnmaster(const Arg *arg)
-{
-	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
-	arrange(selmon);
-}
+/* Disabled by slankdev  */
+/* void */
+/* incnmaster(const Arg *arg) */
+/* { */
+/* 	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0); */
+/* 	arrange(selmon); */
+/* } */
 
 #ifdef XINERAMA
 static int
@@ -1676,13 +1679,14 @@ tag(const Arg *arg)
 	}
 }
 
-void
-tagmon(const Arg *arg)
-{
-	if (!selmon->sel || !mons->next)
-		return;
-	sendmon(selmon->sel, dirtomon(arg->i));
-}
+/* Disabled by slankdev */
+/* void */
+/* tagmon(const Arg *arg) */
+/* { */
+/* 	if (!selmon->sel || !mons->next) */
+/* 		return; */
+/* 	sendmon(selmon->sel, dirtomon(arg->i)); */
+/* } */
 
 void
 tile(Monitor *m)
@@ -1710,14 +1714,15 @@ tile(Monitor *m)
 		}
 }
 
-void
-togglebar(const Arg *arg)  // toggle status bar
-{
-	selmon->showbar = !selmon->showbar;
-	updatebarpos(selmon);
-	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
-	arrange(selmon);
-}
+/* Disabled by slankdev */
+/* void */
+/* togglebar(const Arg *arg)  // toggle status bar */
+/* { */
+/* 	selmon->showbar = !selmon->showbar; */
+/* 	updatebarpos(selmon); */
+/* 	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh); */
+/* 	arrange(selmon); */
+/* } */
 
 void
 togglefloating(const Arg *arg)
