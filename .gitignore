@@ -32,3 +32,7 @@ dwm
 # Debug files
 *.dSYM/
 *.su
+
+GPATH
+GRTAGS
+GTAGS

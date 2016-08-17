@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <X11/Xlib.h>
 #include <X11/Xft/Xft.h>
@@ -61,7 +62,7 @@ utf8decode(const char *c, long *u, size_t clen)
 }
 
 Drw *
-drw_create(Display *dpy, int screen, Window root, unsigned int w, unsigned int h)
+drw_create(Display *dpy, int screen, Window root, uint32_t w, uint32_t h)
 {
 	Drw *drw;
 
@@ -80,7 +81,7 @@ drw_create(Display *dpy, int screen, Window root, unsigned int w, unsigned int h
 }
 
 void
-drw_resize(Drw *drw, unsigned int w, unsigned int h)
+drw_resize(Drw *drw, uint32_t w, uint32_t h)
 {
 	drw->w = w;
 	drw->h = h;
@@ -207,7 +208,7 @@ drw_setscheme(Drw *drw, ClrScheme *scheme)
 }
 
 void
-drw_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, int filled, int empty, int invert)
+drw_rect(Drw *drw, int x, int y, uint32_t w, uint32_t h, int filled, int empty, int invert)
 {
 	if (!drw->scheme)
 		return;
@@ -219,7 +220,7 @@ drw_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, int filled, int
 }
 
 int
-drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, const char *text, int invert)
+drw_text(Drw *drw, int x, int y, uint32_t w, uint32_t h, const char *text, int invert)
 {
 	char buf[1024];
 	int tx, ty, th;
@@ -227,7 +228,8 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, const char *tex
 	XftDraw *d = NULL;
 	Fnt *curfont, *nextfont;
 	size_t i, len;
-	int utf8strlen, utf8charlen, render;
+	uint32_t utf8strlen, utf8charlen;
+    int render;
 	long utf8codepoint = 0;
 	const char *utf8str;
 	FcCharSet *fccharset;
@@ -351,14 +353,14 @@ drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, const char *tex
 }
 
 void
-drw_map(Drw *drw, Window win, int x, int y, unsigned int w, unsigned int h)
+drw_map(Drw *drw, Window win, int x, int y, uint32_t w, uint32_t h)
 {
 	XCopyArea(drw->dpy, drw->drawable, win, drw->gc, x, y, w, h, x, y);
 	XSync(drw->dpy, False);
 }
 
 void
-drw_font_getexts(Fnt *font, const char *text, unsigned int len, Extnts *tex)
+drw_font_getexts(Fnt *font, const char *text, uint32_t len, Extnts *tex)
 {
 	XGlyphInfo ext;
 
@@ -367,8 +369,8 @@ drw_font_getexts(Fnt *font, const char *text, unsigned int len, Extnts *tex)
 	tex->w = ext.xOff;
 }
 
-unsigned int
-drw_font_getexts_width(Fnt *font, const char *text, unsigned int len)
+uint32_t
+drw_font_getexts_width(Fnt *font, const char *text, uint32_t len)
 {
 	Extnts tex;
 

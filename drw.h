@@ -14,7 +14,7 @@ typedef struct {
 	Display *dpy;
 	int ascent;
 	int descent;
-	unsigned int h;
+	uint32_t h;
 	XftFont *xfont;
 	FcPattern *pattern;
 } Fnt;
@@ -26,7 +26,7 @@ typedef struct {
 } ClrScheme;
 
 typedef struct {
-	unsigned int w, h;
+	uint32_t w, h;
 	Display *dpy;
 	int screen;
 	Window root;
@@ -38,21 +38,21 @@ typedef struct {
 } Drw;
 
 typedef struct {
-	unsigned int w;
-	unsigned int h;
+	uint32_t w;
+	uint32_t h;
 } Extnts;
 
 /* Drawable abstraction */
-Drw *drw_create(Display *, int, Window, unsigned int, unsigned int);
-void drw_resize(Drw *, unsigned int, unsigned int);
+Drw *drw_create(Display *, int, Window, uint32_t, uint32_t);
+void drw_resize(Drw *, uint32_t, uint32_t);
 void drw_free(Drw *);
 
 /* Fnt abstraction */
 Fnt *drw_font_create(Drw *, const char *);
 void drw_load_fonts(Drw *, const char *[], size_t);
 void drw_font_free(Fnt *);
-void drw_font_getexts(Fnt *, const char *, unsigned int, Extnts *);
-unsigned int drw_font_getexts_width(Fnt *, const char *, unsigned int);
+void drw_font_getexts(Fnt *, const char *, uint32_t, Extnts *);
+uint32_t drw_font_getexts_width(Fnt *, const char *, uint32_t);
 
 /* Colour abstraction */
 Clr *drw_clr_create(Drw *, const char *);
@@ -67,8 +67,8 @@ void drw_setfont(Drw *, Fnt *);
 void drw_setscheme(Drw *, ClrScheme *);
 
 /* Drawing functions */
-void drw_rect(Drw *, int, int, unsigned int, unsigned int, int, int, int);
-int drw_text(Drw *, int, int, unsigned int, unsigned int, const char *, int);
+void drw_rect(Drw *, int, int, uint32_t, uint32_t, int, int, int);
+int drw_text(Drw *, int, int, uint32_t, uint32_t, const char *, int);
 
 /* Map functions */
-void drw_map(Drw *, Window, int, int, unsigned int, unsigned int);
+void drw_map(Drw *, Window, int, int, uint32_t, uint32_t);

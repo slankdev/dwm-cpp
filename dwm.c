@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -62,7 +63,7 @@
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define LENGTH(X)               (sizeof X / sizeof X[0])
+#define LENGTH(X)               (size_t)(sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -81,15 +82,15 @@ enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
 
 typedef union {
 	int i;
-	unsigned int ui;
+	uint32_t ui;
 	float f;
 	const void *v;
 } Arg;
 
 typedef struct {
-	unsigned int click;
-	unsigned int mask;
-	unsigned int button;
+	uint32_t click;
+	uint32_t mask;
+	uint32_t button;
 	void (*func)(const Arg *arg);
 	const Arg arg;
 } Button;
@@ -99,11 +100,11 @@ typedef struct Client Client;
 struct Client {
 	char name[256];
 	float mina, maxa;
-	int x, y, w, h;
-	int oldx, oldy, oldw, oldh;
-	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
-	int bw, oldbw;
-	unsigned int tags;
+	ssize_t x, y, w, h;
+	ssize_t oldx, oldy, oldw, oldh;
+	ssize_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
+	ssize_t bw, oldbw;
+	ssize_t tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 	Client *next;
 	Client *snext;
@@ -112,7 +113,7 @@ struct Client {
 };
 
 typedef struct {
-	unsigned int mod;
+	uint32_t mod;
 	KeySym keysym;
 	void (*func)(const Arg *);
 	const Arg arg;
@@ -126,14 +127,14 @@ typedef struct {
 struct Monitor {
 	char ltsymbol[16];
 	float mfact;
-	int nmaster;
+	size_t nmaster;
 	int num;
 	int by;               /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
 	int wx, wy, ww, wh;   /* window area  */
-	unsigned int seltags;
-	unsigned int sellt;
-	unsigned int tagset[2];
+	uint32_t seltags;
+	uint32_t sellt;
+	uint32_t tagset[2];
 	int showbar;
 	int topbar;
 	Client *clients;
@@ -148,7 +149,7 @@ typedef struct {
 	const char *class_;
 	const char *instance;
 	const char *title;
-	unsigned int tags;
+	uint32_t tags;
 	int isfloating;
 	int monitor;
 } Rule;
@@ -173,21 +174,18 @@ static Monitor *createmon(void);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
-/* static Monitor *dirtomon(int dir); // Disabled by slankdev */
 static void drawbar(Monitor *m);
 static void drawbars(void);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void focus(Client *c);
 static void focusin(XEvent *e);
-/* static void focusmon(const Arg *arg); // Disabled by slankdev */
 static void focusstack(const Arg *arg);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
-static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
+static int gettextprop(Window w, Atom atom, char *text, uint32_t size);
 static void grabbuttons(Client *c, int focused);
 static void grabkeys(void);
-/* static void incnmaster(const Arg *arg); // Disabled by slankdev */
 static void keypress(XEvent *e);
 static void killclient(const Arg *arg);
 static void manage(Window w, XWindowAttributes *wa);
@@ -219,9 +217,7 @@ static void showhide(Client *c);
 static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
-/* static void tagmon(const Arg *arg); // Disabled by slankdev */
 static void tile(Monitor *);
-/* static void togglebar(const Arg *arg); // Disabled by slankdev */
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
 static void toggleview(const Arg *arg);
@@ -262,7 +258,7 @@ static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
-static unsigned int numlockmask = 0;
+static uint32_t numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *) = {
 	[ButtonPress] = buttonpress,
 	[ClientMessage] = clientmessage,
@@ -291,7 +287,7 @@ static Window root;
 /* configuration, allows nested code to access above variables */
 #include "config.h"
 
-/* compile-time check if all tags fit into an unsigned int bit array. */
+/* compile-time check if all tags fit into an uint32_t bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
 /* function implementations */
@@ -299,7 +295,6 @@ void
 applyrules(Client *c)
 {
 	const char *class_, *instance;
-	unsigned int i;
 	const Rule *r;
 	Monitor *m;
 	XClassHint ch = { NULL, NULL };
@@ -311,7 +306,7 @@ applyrules(Client *c)
 	class_    = ch.res_class ? ch.res_class : broken;
 	instance = ch.res_name  ? ch.res_name  : broken;
 
-	for (i = 0; i < LENGTH(rules); i++) {
+	for (uint32_t i = 0; i < LENGTH(rules); i++) {
 		r = &rules[i];
 		if ((!r->title || strstr(c->name, r->title))
 		&& (!r->class_ || strstr(class_, r->class_))
@@ -400,15 +395,18 @@ applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact)
 void
 arrange(Monitor *m)
 {
-	if (m)
-		showhide(m->stack);
-	else for (m = mons; m; m = m->next)
-		showhide(m->stack);
 	if (m) {
+		showhide(m->stack);
+    } else {
+        for (m = mons; m; m = m->next)
+            showhide(m->stack);
+    } if (m) {
 		arrangemon(m);
 		restack(m);
-	} else for (m = mons; m; m = m->next)
-		arrangemon(m);
+	} else {
+        for (m = mons; m; m = m->next)
+            arrangemon(m);
+    }
 }
 
 void
@@ -436,7 +434,7 @@ attachstack(Client *c)
 void
 buttonpress(XEvent *e)
 {
-	unsigned int i, x, click;
+	uint32_t click;
 	Arg arg = {0};
 	Client *c;
 	Monitor *m;
@@ -449,28 +447,34 @@ buttonpress(XEvent *e)
 		selmon = m;
 		focus(NULL);
 	}
+
 	if (ev->window == selmon->barwin) {
-		i = x = 0;
-		do
+        uint32_t i=0;
+        uint32_t x=0;
+
+		do {
 			x += TEXTW(tags[i]);
-		while (ev->x >= x && ++i < LENGTH(tags));
+        } while ((uint32_t)(ev->x) >= x && ++i < LENGTH(tags));
+
 		if (i < LENGTH(tags)) {
 			click = ClkTagBar;
 			arg.ui = 1 << i;
-		} else if (ev->x < x + blw)
+		} else if ((uint32_t)(ev->x) < x + blw) {
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - TEXTW(stext))
+        } else if ((uint32_t)(ev->x) > selmon->ww - TEXTW(stext)) {
 			click = ClkStatusText;
-		else
+        } else {
 			click = ClkWinTitle;
+        }
 	} else if ((c = wintoclient(ev->window))) {
 		focus(c);
 		click = ClkClientWin;
 	}
-	for (i = 0; i < LENGTH(buttons); i++)
+	for (uint32_t i = 0; i < LENGTH(buttons); i++) {
 		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
 		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
 			buttons[i].func(click == ClkTagBar && buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
+    }
 }
 
 void
@@ -489,20 +493,18 @@ cleanup(void)
 {
 	Arg a = {.ui = ~0};
 	Layout foo = { "", NULL };
-	Monitor *m;
-	size_t i;
 
 	view(&a);
 	selmon->lt[selmon->sellt] = &foo;
-	for (m = mons; m; m = m->next)
+	for (Monitor *m = mons; m; m = m->next)
 		while (m->stack)
 			unmanage(m->stack, 0);
 	XUngrabKey(dpy, AnyKey, AnyModifier, root);
 	while (mons)
 		cleanupmon(mons);
-	for (i = 0; i < CurLast; i++)
+	for (size_t i = 0; i < CurLast; i++)
 		drw_cur_free(drw, cursor[i]);
-	for (i = 0; i < SchemeLast; i++) {
+	for (size_t i = 0; i < SchemeLast; i++) {
 		drw_clr_free(scheme[i].border);
 		drw_clr_free(scheme[i].bg);
 		drw_clr_free(scheme[i].fg);
@@ -516,11 +518,10 @@ cleanup(void)
 void
 cleanupmon(Monitor *mon)
 {
-	Monitor *m;
-
 	if (mon == mons)
 		mons = mons->next;
 	else {
+        Monitor *m;
 		for (m = mons; m && m->next != mon; m = m->next);
 		m->next = mon->next;
 	}
@@ -551,9 +552,11 @@ clientmessage(XEvent *e)
 	if (!c)
 		return;
 	if (cme->message_type == netatom[NetWMState]) {
-		if (cme->data.l[1] == netatom[NetWMFullscreen] || cme->data.l[2] == netatom[NetWMFullscreen])
+		if ((uint64_t)(cme->data.l[1]) == netatom[NetWMFullscreen] ||
+                           (uint64_t)(cme->data.l[2]) == netatom[NetWMFullscreen]) {
 			setfullscreen(c, (cme->data.l[0] == 1 /* _NET_WM_STATE_ADD    */
 			              || (cme->data.l[0] == 2 /* _NET_WM_STATE_TOGGLE */ && !c->isfullscreen)));
+        }
 	} else if (cme->message_type == netatom[NetActiveWindow]) {
 		if (!ISVISIBLE(c)) {
 			c->mon->seltags ^= 1;
@@ -585,7 +588,6 @@ configure(Client *c)
 void
 configurenotify(XEvent *e)
 {
-	Monitor *m;
 	XConfigureEvent *ev = &e->xconfigure;
 	int dirty;
 
@@ -597,7 +599,7 @@ configurenotify(XEvent *e)
 		if (updategeom() || dirty) {
 			drw_resize(drw, sw, bh);
 			updatebars();
-			for (m = mons; m; m = m->next)
+			for (Monitor *m = mons; m; m = m->next)
 				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
 			focus(NULL);
 			arrange(NULL);
@@ -707,27 +709,11 @@ detachstack(Client *c)
 	}
 }
 
-/* Disabled by slankdev */
-/* Monitor * */
-/* dirtomon(int dir) */
-/* { */
-/* 	Monitor *m = NULL; */
-/*  */
-/* 	if (dir > 0) { */
-/* 		if (!(m = selmon->next)) */
-/* 			m = mons; */
-/* 	} else if (selmon == mons) */
-/* 		for (m = mons; m->next; m = m->next); */
-/* 	else */
-/* 		for (m = mons; m->next != selmon; m = m->next); */
-/* 	return m; */
-/* } */
-
 void
 drawbar(Monitor *m)
 {
 	int x, xx, w, dx;
-	unsigned int i, occ = 0, urg = 0;
+	uint32_t i, occ = 0, urg = 0;
 	Client *c;
 
 	dx = (drw->fonts[0]->ascent + drw->fonts[0]->descent + 2) / 4;
@@ -849,22 +835,6 @@ focusin(XEvent *e)
 		setfocus(selmon->sel);
 }
 
-/* Disabled by slankdev */
-/* void */
-/* focusmon(const Arg *arg) */
-/* { */
-/* 	Monitor *m; */
-/*  */
-/* 	if (!mons->next) */
-/* 		return; */
-/* 	if ((m = dirtomon(arg->i)) == selmon) */
-/* 		return; */
-/* 	unfocus(selmon->sel, 0); #<{(| s/1/0/ fixes input focus issues */
-/* 					in gedit and anjuta |)}># */
-/* 	selmon = m; */
-/* 	focus(NULL); */
-/* } */
-
 void
 focusstack(const Arg *arg)
 {
@@ -911,7 +881,7 @@ int
 getrootptr(int *x, int *y)
 {
 	int di;
-	unsigned int dui;
+	uint32_t dui;
 	Window dummy;
 
 	return XQueryPointer(dpy, root, &dummy, &dummy, x, y, &di, &di, &dui);
@@ -936,7 +906,7 @@ getstate(Window w)
 }
 
 int
-gettextprop(Window w, Atom atom, char *text, unsigned int size)
+gettextprop(Window w, Atom atom, char *text, uint32_t size)
 {
 	char **list = NULL;
 	int n;
@@ -966,8 +936,8 @@ grabbuttons(Client *c, int focused)
 {
 	updatenumlockmask();
 	{
-		unsigned int i, j;
-		unsigned int modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
+		uint32_t i, j;
+		uint32_t modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
 		XUngrabButton(dpy, AnyButton, AnyModifier, c->win);
 		if (focused) {
 			for (i = 0; i < LENGTH(buttons); i++)
@@ -988,8 +958,8 @@ grabkeys(void)
 {
 	updatenumlockmask();
 	{
-		unsigned int i, j;
-		unsigned int modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
+		uint32_t i, j;
+		uint32_t modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
 		KeyCode code;
 
 		XUngrabKey(dpy, AnyKey, AnyModifier, root);
@@ -1000,14 +970,6 @@ grabkeys(void)
 						 True, GrabModeAsync, GrabModeAsync);
 	}
 }
-
-/* Disabled by slankdev  */
-/* void */
-/* incnmaster(const Arg *arg) */
-/* { */
-/* 	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0); */
-/* 	arrange(selmon); */
-/* } */
 
 #ifdef XINERAMA
 static int
@@ -1024,7 +986,7 @@ isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
 void
 keypress(XEvent *e)
 {
-	unsigned int i;
+	uint32_t i;
 	KeySym keysym;
 	XKeyEvent *ev;
 
@@ -1141,7 +1103,7 @@ maprequest(XEvent *e)
 void
 monocle(Monitor *m)
 {
-	unsigned int n = 0;
+	uint32_t n = 0;
 	Client *c;
 
 	for (c = m->clients; c; c = c->next)
@@ -1295,10 +1257,9 @@ quit(const Arg *arg)
 Monitor *
 recttomon(int x, int y, int w, int h)
 {
-	Monitor *m, *r = selmon;
 	int a, area = 0;
-
-	for (m = mons; m; m = m->next)
+	Monitor *r = selmon;
+	for (Monitor* m = mons; m; m = m->next)
 		if ((a = INTERSECT(x, y, w, h, m)) > area) {
 			area = a;
 			r = m;
@@ -1424,19 +1385,19 @@ run(void)
 void
 scan(void)
 {
-	unsigned int i, num;
+	uint32_t num;
 	Window d1, d2, *wins = NULL;
 	XWindowAttributes wa;
 
 	if (XQueryTree(dpy, root, &d1, &d2, &wins, &num)) {
-		for (i = 0; i < num; i++) {
+		for (uint32_t i = 0; i < num; i++) {
 			if (!XGetWindowAttributes(dpy, wins[i], &wa)
 			|| wa.override_redirect || XGetTransientForHint(dpy, wins[i], &d1))
 				continue;
 			if (wa.map_state == IsViewable || getstate(wins[i]) == IconicState)
 				manage(wins[i], &wa);
 		}
-		for (i = 0; i < num; i++) { /* now the transients */
+		for (uint32_t i = 0; i < num; i++) { /* now the transients */
 			if (!XGetWindowAttributes(dpy, wins[i], &wa))
 				continue;
 			if (XGetTransientForHint(dpy, wins[i], &d1)
@@ -1679,19 +1640,10 @@ tag(const Arg *arg)
 	}
 }
 
-/* Disabled by slankdev */
-/* void */
-/* tagmon(const Arg *arg) */
-/* { */
-/* 	if (!selmon->sel || !mons->next) */
-/* 		return; */
-/* 	sendmon(selmon->sel, dirtomon(arg->i)); */
-/* } */
-
 void
 tile(Monitor *m)
 {
-	unsigned int i, n, h, mw, my, ty;
+	uint32_t i, n, h, mw, my, ty;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
@@ -1741,7 +1693,7 @@ togglefloating(const Arg *arg)
 void
 toggletag(const Arg *arg)
 {
-	unsigned int newtags;
+	uint32_t newtags;
 
 	if (!selmon->sel)
 		return;
@@ -1756,7 +1708,7 @@ toggletag(const Arg *arg)
 void
 toggleview(const Arg *arg)
 {
-	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
+	uint32_t newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
 
 	if (newtagset) {
 		selmon->tagset[selmon->seltags] = newtagset;
@@ -1872,16 +1824,15 @@ updategeom(void)
 
 #ifdef XINERAMA
 	if (XineramaIsActive(dpy)) {
-		int i, j, n, nn;
 		Client *c;
 		Monitor *m;
 		XineramaScreenInfo *info = XineramaQueryScreens(dpy, &nn);
 		XineramaScreenInfo *unique = NULL;
 
-		for (n = 0, m = mons; m; m = m->next, n++);
+		for (int n=0, m=mons; m; m=m->next, n++);
 		/* only consider unique geometries as separate screens */
 		unique = ecalloc(nn, sizeof(XineramaScreenInfo));
-		for (i = 0, j = 0; i < nn; i++)
+		for (int i=0, j=0; i < nn; i++)
 			if (isuniquegeom(unique, j, &info[i]))
 				memcpy(&unique[j++], &info[i], sizeof(XineramaScreenInfo));
 		XFree(info);
@@ -1949,13 +1900,12 @@ updategeom(void)
 void
 updatenumlockmask(void)
 {
-	unsigned int i, j;
 	XModifierKeymap *modmap;
 
 	numlockmask = 0;
 	modmap = XGetModifierMapping(dpy);
-	for (i = 0; i < 8; i++)
-		for (j = 0; j < modmap->max_keypermod; j++)
+	for (uint32_t i = 0; i < 8; i++)
+		for (uint32_t j = 0; j < (uint32_t)(modmap->max_keypermod); j++)
 			if (modmap->modifiermap[i * modmap->max_keypermod + j]
 			   == XKeysymToKeycode(dpy, XK_Num_Lock))
 				numlockmask = (1 << i);
@@ -2070,7 +2020,7 @@ view(const Arg *arg)
 void
 view_right(const Arg* arg)
 {
-    unsigned int mon = (selmon->tagset[selmon->seltags]<<1);
+    uint32_t mon = (selmon->tagset[selmon->seltags]<<1);
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if (mon & TAGMASK)
 		selmon->tagset[selmon->seltags] = mon;
@@ -2084,7 +2034,7 @@ view_right(const Arg* arg)
 void
 view_left(const Arg* arg)
 {
-    unsigned int mon = (selmon->tagset[selmon->seltags]>>1);
+    uint32_t mon = (selmon->tagset[selmon->seltags]>>1);
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if (mon & TAGMASK)
 		selmon->tagset[selmon->seltags] = mon;

@@ -28,7 +28,7 @@ LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS}
 CPPFLAGS =  -D_BSD_SOURCE -D_POSIX_C_SOURCE=2 -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
 CPPFLAGS += -D_DEFAULT_SOURCE 
 
-CFLAGS   =  -std=c99
+CFLAGS   =  -std=c11
 CFLAGS   += -pedantic
 CFLAGS   += -Wall -Wextra
 CFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter
