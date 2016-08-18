@@ -47,8 +47,6 @@
 
 
 /* Headers for Additional functon by slankdev */
-/* #include <string.h> #<{(| for strncpy |)}># */
-/* #include <unistd.h> #<{(| for close |)}># */
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
@@ -100,11 +98,11 @@ typedef struct Client Client;
 struct Client {
 	char name[256];
 	float mina, maxa;
-	ssize_t x, y, w, h;
-	ssize_t oldx, oldy, oldw, oldh;
-	ssize_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
-	ssize_t bw, oldbw;
-	ssize_t tags;
+	size_t x, y, w, h;
+	size_t oldx, oldy, oldw, oldh;
+	size_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
+	size_t bw, oldbw;
+	size_t tags; // SLANK 
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 	Client *next;
 	Client *snext;
@@ -129,9 +127,9 @@ struct Monitor {
 	float mfact;
 	size_t nmaster;
 	int num;
-	int by;               /* bar geometry */
-	int mx, my, mw, mh;   /* screen size */
-	int wx, wy, ww, wh;   /* window area  */
+	size_t by;               /* bar geometry */
+	size_t mx, my, mw, mh;   /* screen size */
+	size_t wx, wy, ww, wh;   /* window area  */
 	uint32_t seltags;
 	uint32_t sellt;
 	uint32_t tagset[2];
@@ -156,7 +154,7 @@ typedef struct {
 
 /* function declarations */
 static void applyrules(Client *c);
-static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
+static int applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int interact);
 static void arrange(Monitor *m);
 static void arrangemon(Monitor *m);
 static void attach(Client *c);
@@ -198,8 +196,8 @@ static Client *nexttiled(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
-static Monitor *recttomon(int x, int y, int w, int h);
-static void resize(Client *c, int x, int y, int w, int h, int interact);
+static Monitor *recttomon(size_t x, size_t y, size_t w, size_t h);
+static void resize(Client *c, size_t x, size_t y, size_t w, size_t h, int interact);
 static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void restack(Monitor *m);
@@ -255,8 +253,8 @@ char* get_ipaddr(const char* interface);
 static const char broken[] = "broken";
 static char stext[256];
 static int screen;
-static int sw, sh;           /* X display screen geometry width, height */
-static int bh, blw = 0;      /* bar geometry */
+static size_t sw, sh;           /* X display screen geometry width, height */
+static size_t bh, blw = 0;      /* bar geometry */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static uint32_t numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *) = {
@@ -327,7 +325,7 @@ applyrules(Client *c)
 }
 
 int
-applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact)
+applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int interact)
 {
 	int baseismin;
 	Monitor *m = c->mon;
@@ -340,10 +338,6 @@ applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact)
 			*x = sw - WIDTH(c);
 		if (*y > sh)
 			*y = sh - HEIGHT(c);
-		if (*x + *w + 2 * c->bw < 0)
-			*x = 0;
-		if (*y + *h + 2 * c->bw < 0)
-			*y = 0;
 	} else {
 		if (*x >= m->wx + m->ww)
 			*x = m->wx + m->ww - WIDTH(c);
@@ -593,7 +587,7 @@ configurenotify(XEvent *e)
 
 	/* TODO: updategeom handling sucks, needs to be simplified */
 	if (ev->window == root) {
-		dirty = (sw != ev->width || sh != ev->height);
+		dirty = (sw != (size_t)(ev->width) || sh != (size_t)(ev->height));
 		sw = ev->width;
 		sh = ev->height;
 		if (updategeom() || dirty) {
@@ -712,7 +706,7 @@ detachstack(Client *c)
 void
 drawbar(Monitor *m)
 {
-	int x, xx, w, dx;
+	size_t x, xx, w, dx;
 	uint32_t i, occ = 0, urg = 0;
 	Client *c;
 
@@ -1135,7 +1129,7 @@ motionnotify(XEvent *e)
 void
 movemouse(const Arg *arg)
 {
-	int x, y, ocx, ocy, nx, ny;
+	int x, y, ocx, ocy;
 	Client *c;
 	Monitor *m;
 	XEvent ev;
@@ -1166,8 +1160,8 @@ movemouse(const Arg *arg)
 				continue;
 			lasttime = ev.xmotion.time;
 
-			nx = ocx + (ev.xmotion.x - x);
-			ny = ocy + (ev.xmotion.y - y);
+			size_t nx = ocx + (ev.xmotion.x - x);
+			size_t ny = ocy + (ev.xmotion.y - y);
 			if (nx >= selmon->wx && nx <= selmon->wx + selmon->ww
 			&& ny >= selmon->wy && ny <= selmon->wy + selmon->wh) {
 				if (abs(selmon->wx - nx) < snap)
@@ -1255,9 +1249,9 @@ quit(const Arg *arg)
 }
 
 Monitor *
-recttomon(int x, int y, int w, int h)
+recttomon(size_t x, size_t y, size_t w, size_t h)
 {
-	int a, area = 0;
+	size_t a, area = 0;
 	Monitor *r = selmon;
 	for (Monitor* m = mons; m; m = m->next)
 		if ((a = INTERSECT(x, y, w, h, m)) > area) {
@@ -1268,7 +1262,7 @@ recttomon(int x, int y, int w, int h)
 }
 
 void
-resize(Client *c, int x, int y, int w, int h, int interact)
+resize(Client *c, size_t x, size_t y, size_t w, size_t h, int interact)
 {
 	if (applysizehints(c, &x, &y, &w, &h, interact))
 		resizeclient(c, x, y, w, h);

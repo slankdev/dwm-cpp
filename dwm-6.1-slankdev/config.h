@@ -10,7 +10,7 @@
 
 
 /* appearance */
-static const char *fonts[] = { "monospace:size=17" };
+static const char *fonts[]          = { "monospace:size=17" };
 static const char dmenufont[]       = "monospace:size=17";
 static const char normbordercolor[] = "#444444";
 static const char normbgcolor[]     = "#222222";
@@ -18,8 +18,8 @@ static const char normfgcolor[]     = "#bbbbbb";
 static const char selbordercolor[]  = "#005577";
 static const char selbgcolor[]      = "#005577";
 static const char selfgcolor[]      = "#eeeeee";
-static const uint32_t borderpx  = 1;        /* border pixel of windows */
-static const uint32_t snap      = 32;       /* snap pixel */
+static const uint32_t borderpx      = 1;        /* border pixel of windows */
+static const uint32_t snap          = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 
@@ -31,10 +31,6 @@ static const int topbar             = 1;        /* 0 means bottom bar */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
 
 static const Rule rules[] = {
-	/* xprop(1):
-	 *	WM_CLASS(STRING) = instance, class
-	 *	WM_NAME(STRING) = title
-	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
 	// { "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
@@ -54,7 +50,6 @@ static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
 	{ "[M]",      monocle },
-	// { "><>",      NULL },    #<{(| no layout function means floating behavior |)}>#
 };
 
 
