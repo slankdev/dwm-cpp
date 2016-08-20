@@ -78,14 +78,6 @@ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms *
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
 
-#if 0
-typedef union {
-	int i;
-	uint32_t ui;
-	float f;
-	const void *v;
-} Arg;
-#else
 struct Arg {
     union {
         int i;
@@ -96,33 +88,28 @@ struct Arg {
     static Arg set_i(int ii)
     {
         Arg a;
-        memset(&a, 0, sizeof(a));
         a.i = ii;
         return a;
     }
     static Arg set_ui(uint32_t iui)
     {
         Arg a;
-        memset(&a, 0, sizeof(a));
         a.ui = iui;
         return a;
     }
     static Arg set_f(float iff)
     {
         Arg a;
-        memset(&a, 0, sizeof(a));
         a.f = iff;
         return a;
     }
     static Arg set_v(const void* iv)
     {
         Arg a;
-        memset(&a, 0, sizeof(a));
         a.v = iv;
         return a;
     }
 };
-#endif
 
 
 
@@ -302,30 +289,7 @@ static ssize_t sw, sh;           /* X display screen geometry width, height */
 static ssize_t bh, blw = 0;      /* bar geometry */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static uint32_t numlockmask = 0;
-
-
-#if 0
-static void (*handler[LASTEvent]) (XEvent *) = {
-	[ButtonPress] = buttonpress,
-	[ClientMessage] = clientmessage,
-	[ConfigureRequest] = configurerequest,
-	[ConfigureNotify] = configurenotify,
-	[DestroyNotify] = destroynotify,
-	[EnterNotify] = enternotify,
-	[Expose] = expose,
-	[FocusIn] = focusin,
-	[KeyPress] = keypress,
-	[MappingNotify] = mappingnotify,
-	[MapRequest] = maprequest,
-	[MotionNotify] = motionnotify,
-	[PropertyNotify] = propertynotify,
-	[UnmapNotify] = unmapnotify
-};
-#else
 static void (*handler[LASTEvent]) (XEvent *); /* for c++ implementation */
-#endif
-
-
 static Atom wmatom[WMLast], netatom[NetLast];
 static int running = 1;
 static Cur *cursor[CurLast];
@@ -1824,20 +1788,12 @@ updatebars(void)
 {
 	Monitor *m;
 
-    // SLANK: c-stlye struct init
-#if 0
-	XSetWindowAttributes wa = {
-		.override_redirect = true,
-		.background_pixmap = ParentRelative,
-		.event_mask = ButtonPressMask|ExposureMask
-	};
-#else
     XSetWindowAttributes wa;
     memset(&wa, 0, sizeof wa);
 	wa.override_redirect = true;
 	wa.background_pixmap = ParentRelative;
 	wa.event_mask = ButtonPressMask|ExposureMask;
-#endif
+
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
