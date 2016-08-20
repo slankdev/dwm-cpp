@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 #define MY_STATUS \
@@ -20,7 +21,7 @@ static const char selbgcolor[]      = "#005577";
 static const char selfgcolor[]      = "#eeeeee";
 static const size_t borderpx        = 3;        /* border pixel of windows Like xmonad */
 static const uint32_t snap          = 32;       /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
+static const bool showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 
 
@@ -44,7 +45,7 @@ static const Rule rules[] = {
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
 static const size_t nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = False;    /* 1 means respect size hints in tiled resizals */
+static const bool resizehints = false;    /* 1 means respect size hints in tiled resizals */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
