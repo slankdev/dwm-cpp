@@ -27,7 +27,6 @@ static const _Bool topbar            = true;        /* 0 means bottom bar */
 
 
 
-
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
 
@@ -37,9 +36,8 @@ static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	// { "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
-    {0}
+    {0, NULL, NULL, 0, 0, 0}
 };
-
 
 
 
@@ -83,31 +81,31 @@ static Key keys[] = {
     { MODKEY,                       XK_h,      view_left,      {0} }, // by slankdev
     { MODKEY|ShiftMask|ControlMask, XK_l,      view_right,     {0} }, // by slankdev
     { MODKEY|ShiftMask|ControlMask, XK_h,      view_left,      {0} }, // by slankdev
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY,                       XK_f,      spawn,          {.v = browsercmd } },
-	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
-	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+	{ MODKEY,                       XK_p,      spawn,          Arg::set_v(dmenucmd) },
+	{ MODKEY|ShiftMask,             XK_Return, spawn,          Arg::set_v(termcmd) },
+	{ MODKEY,                       XK_f,      spawn,          Arg::set_v(browsercmd) },
+	{ MODKEY,                       XK_j,      focusstack,     Arg::set_i(+1) },
+	{ MODKEY,                       XK_k,      focusstack,     Arg::set_i(-1) },
 	{ MODKEY,                       XK_space,  setlayout,      {0} },
-	{ MODKEY|ShiftMask,             XK_h,      setmfact,       {.f = -0.05} },
-	{ MODKEY|ShiftMask,             XK_l,      setmfact,       {.f = +0.05} },
+	{ MODKEY|ShiftMask,             XK_h,      setmfact,       Arg::set_f(-0.05) },
+	{ MODKEY|ShiftMask,             XK_l,      setmfact,       Arg::set_f(0.05) },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
-	{ MODKEY|ShiftMask,             XK_j,      movestack,      {.i = +1 } },
-	{ MODKEY|ShiftMask,             XK_k,      movestack,      {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_j,      movestack,      Arg::set_i(+1) },
+	{ MODKEY|ShiftMask,             XK_k,      movestack,      Arg::set_i(-1) },
 
-    { MODKEY,                       XK_1,      view,           {.ui = 1 << 0 } },
-    { MODKEY,                       XK_2,      view,           {.ui = 1 << 1 } },
-    { MODKEY,                       XK_3,      view,           {.ui = 1 << 2 } },
-    { MODKEY,                       XK_4,      view,           {.ui = 1 << 3 } },
-    { MODKEY,                       XK_5,      view,           {.ui = 1 << 4 } },
-    { MODKEY,                       XK_6,      view,           {.ui = 1 << 5 } },
-	{ MODKEY|ShiftMask,             XK_1,      tag,            {.ui = 1 << 0} }, 
-	{ MODKEY|ShiftMask,             XK_2,      tag,            {.ui = 1 << 1} }, 
-	{ MODKEY|ShiftMask,             XK_3,      tag,            {.ui = 1 << 2} }, 
-	{ MODKEY|ShiftMask,             XK_4,      tag,            {.ui = 1 << 3} }, 
-	{ MODKEY|ShiftMask,             XK_5,      tag,            {.ui = 1 << 4} }, 
-	{ MODKEY|ShiftMask,             XK_6,      tag,            {.ui = 1 << 5} }, 
+    { MODKEY,                       XK_1,      view,           Arg::set_ui(1 << 0) },
+    { MODKEY,                       XK_2,      view,           Arg::set_ui(1 << 1) },
+    { MODKEY,                       XK_3,      view,           Arg::set_ui(1 << 2) },
+    { MODKEY,                       XK_4,      view,           Arg::set_ui(1 << 3) },
+    { MODKEY,                       XK_5,      view,           Arg::set_ui(1 << 4) },
+    { MODKEY,                       XK_6,      view,           Arg::set_ui(1 << 5) },
+	{ MODKEY|ShiftMask,             XK_1,      tag,            Arg::set_ui(1 << 0) }, 
+	{ MODKEY|ShiftMask,             XK_2,      tag,            Arg::set_ui(1 << 1) }, 
+	{ MODKEY|ShiftMask,             XK_3,      tag,            Arg::set_ui(1 << 2) }, 
+	{ MODKEY|ShiftMask,             XK_4,      tag,            Arg::set_ui(1 << 3) }, 
+	{ MODKEY|ShiftMask,             XK_5,      tag,            Arg::set_ui(1 << 4) }, 
+	{ MODKEY|ShiftMask,             XK_6,      tag,            Arg::set_ui(1 << 5) }, 
 };
 
 
@@ -120,9 +118,9 @@ static Key keys[] = {
 static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
+	{ ClkLtSymbol,          0,              Button3,        setlayout,      Arg::set_v(&layouts[2]) },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkStatusText,        0,              Button2,        spawn,          Arg::set_v(termcmd) },
 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
 	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },

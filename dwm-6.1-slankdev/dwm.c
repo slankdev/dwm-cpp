@@ -78,7 +78,7 @@ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms *
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
 
-#if 1
+#if 0
 typedef union {
 	int i;
 	uint32_t ui;
@@ -539,7 +539,7 @@ void
 cleanup(void)
 {
 	//Arg a = {.ui = ~0}; // SLANK c-stlye struct init
-	Arg a = {.ui = UINT_MAX}; // SLANK c-stlye struct init
+	Arg a = Arg::set_ui(UINT_MAX); // SLANK c-stlye struct init
 	Layout foo = { "", NULL };
 
 	view(&a);
