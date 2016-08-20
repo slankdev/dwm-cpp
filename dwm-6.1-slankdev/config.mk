@@ -31,7 +31,7 @@ CPPFLAGS += -D_DEFAULT_SOURCE
 CFLAGS   =  -std=c++11
 CFLAGS   += -pedantic
 CFLAGS   += -Wall -Wextra
-CFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter
+CFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter -Wno-literal-suffix
 CFLAGS   += -g -O0 -Os ${INCS} ${CPPFLAGS}
 
 LDFLAGS  = -s ${LIBS}
