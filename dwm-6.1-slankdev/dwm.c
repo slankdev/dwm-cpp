@@ -102,7 +102,7 @@ struct Client {
 	size_t oldx, oldy, oldw, oldh;
 	size_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
 	size_t bw, oldbw;
-	size_t tags; // SLANK 
+	size_t tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 	Client *next;
 	Client *snext;
@@ -133,8 +133,13 @@ struct Monitor {
 	uint32_t seltags;
 	uint32_t sellt;
 	uint32_t tagset[2];
+#if __cplusplus
+	bool showbar;
+	bool topbar;
+#else
 	_Bool showbar;
 	_Bool topbar;
+#endif
 	Client *clients;
 	Client *sel;
 	Client *stack;
@@ -246,7 +251,6 @@ static void zoom(const Arg *arg);
 static void view_left(const Arg *arg);
 static void view_right(const Arg *arg);
 void movestack(const Arg *arg);
-char* get_ipaddr(const char* interface);
 
 
 /* variables */
@@ -485,7 +489,7 @@ checkotherwm(void)
 void
 cleanup(void)
 {
-	Arg a = {.ui = ~0};
+	Arg a = {.ui = ~0}; // SLANK c-stlye struct init
 	Layout foo = { "", NULL };
 
 	view(&a);
@@ -1769,6 +1773,8 @@ void
 updatebars(void)
 {
 	Monitor *m;
+
+    // SLANK: c-stlye struct init
 	XSetWindowAttributes wa = {
 		.override_redirect = true,
 		.background_pixmap = ParentRelative,
@@ -2192,19 +2198,3 @@ movestack(const Arg *arg) {
 }
 
 
-
-char* get_ipaddr(const char* interface)
-{
-    int fd;
-    struct ifreq ifr;
-    static char str[32];
-
-    fd = socket(AF_INET, SOCK_DGRAM, 0);
-    ifr.ifr_addr.sa_family = AF_INET;
-    strncpy(ifr.ifr_name, interface, IFNAMSIZ-1);
-    ioctl(fd, SIOCGIFADDR, &ifr);
-    close(fd);
-
-    sprintf(str, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
-    return str;
-}

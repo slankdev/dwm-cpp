@@ -57,7 +57,7 @@ static const Layout layouts[] = {
 
 #define MODKEY Mod1Mask /* key definitions */
 /* helper for spawning shell commands in the pre dwm-5.0 fashion */
-#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
+#define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } } // SLANK: c-style struct init
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
@@ -74,6 +74,7 @@ static const char *termcmd[]    = { "urxvt"   , NULL };
 static const char *browsercmd[] = { "chromium", NULL };
 
 
+// SLANK: c-style struct init
 static Key keys[] = {
 	/* modifier                     key        function        argument */
     { MODKEY,                       XK_l,      view_right,     {0} }, // by slankdev
@@ -111,6 +112,7 @@ static Key keys[] = {
 
 
 
+// SLANK: c-style struct init
 /* button definitions */
 /* click can be ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
