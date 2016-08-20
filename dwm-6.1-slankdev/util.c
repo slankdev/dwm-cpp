@@ -7,7 +7,7 @@
 #include "util.h"
 
 void *
-ecalloc(size_t nmemb, size_t size)
+ecalloc(ssize_t nmemb, ssize_t size)
 {
 	void *p;
 

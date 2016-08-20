@@ -19,7 +19,7 @@ static const char normfgcolor[]     = "#bbbbbb";
 static const char selbordercolor[]  = "#005577";
 static const char selbgcolor[]      = "#005577";
 static const char selfgcolor[]      = "#eeeeee";
-static const size_t borderpx        = 3;        /* border pixel of windows Like xmonad */
+static const ssize_t borderpx        = 3;        /* border pixel of windows Like xmonad */
 static const uint32_t snap          = 32;       /* snap pixel */
 static const _Bool showbar           = true;        /* 0 means no bar */
 static const _Bool topbar            = true;        /* 0 means bottom bar */
@@ -31,11 +31,13 @@ static const _Bool topbar            = true;        /* 0 means bottom bar */
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
 
+
+
 static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	// { "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
-    {0},
+    {0}
 };
 
 
@@ -44,7 +46,7 @@ static const Rule rules[] = {
 
 /* layout(s) */
 static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
-static const size_t nmaster     = 1;    /* number of clients in master area */
+static const ssize_t nmaster     = 1;    /* number of clients in master area */
 static const bool resizehints = false;    /* 1 means respect size hints in tiled resizals */
 
 static const Layout layouts[] = {

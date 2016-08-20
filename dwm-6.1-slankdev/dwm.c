@@ -61,7 +61,7 @@
 #define INTERSECT(x,y,w,h,m)    (MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx) \
                                * MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define LENGTH(X)               (size_t)(sizeof X / sizeof X[0])
+#define LENGTH(X)               (ssize_t)(sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -78,12 +78,53 @@ enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms *
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
 
+#if 1
 typedef union {
 	int i;
 	uint32_t ui;
 	float f;
 	const void *v;
 } Arg;
+#else
+struct Arg {
+    union {
+        int i;
+        uint32_t ui;
+        float f;
+        const void *v;
+    };
+    static Arg set_i(int ii)
+    {
+        Arg a;
+        memset(&a, 0, sizeof(a));
+        a.i = ii;
+        return a;
+    }
+    static Arg set_ui(uint32_t iui)
+    {
+        Arg a;
+        memset(&a, 0, sizeof(a));
+        a.ui = iui;
+        return a;
+    }
+    static Arg set_f(float iff)
+    {
+        Arg a;
+        memset(&a, 0, sizeof(a));
+        a.f = iff;
+        return a;
+    }
+    static Arg set_v(const void* iv)
+    {
+        Arg a;
+        memset(&a, 0, sizeof(a));
+        a.v = iv;
+        return a;
+    }
+};
+#endif
+
+
 
 typedef struct {
 	uint32_t click;
@@ -98,11 +139,11 @@ typedef struct Client Client;
 struct Client {
 	char name[256];
 	float mina, maxa;
-	size_t x, y, w, h;
-	size_t oldx, oldy, oldw, oldh;
-	size_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
-	size_t bw, oldbw;
-	size_t tags;
+	ssize_t x, y, w, h;
+	ssize_t oldx, oldy, oldw, oldh;
+	ssize_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
+	ssize_t bw, oldbw;
+	ssize_t tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 	Client *next;
 	Client *snext;
@@ -125,11 +166,11 @@ typedef struct {
 struct Monitor {
 	char ltsymbol[16];
 	float mfact;
-	size_t nmaster;
+	ssize_t nmaster;
 	int num;
-	size_t by;               /* bar geometry */
-	size_t mx, my, mw, mh;   /* screen size */
-	size_t wx, wy, ww, wh;   /* window area  */
+	ssize_t by;               /* bar geometry */
+	ssize_t mx, my, mw, mh;   /* screen size */
+	ssize_t wx, wy, ww, wh;   /* window area  */
 	uint32_t seltags;
 	uint32_t sellt;
 	uint32_t tagset[2];
@@ -159,7 +200,7 @@ typedef struct {
 
 /* function declarations */
 static void applyrules(Client *c);
-static int applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int interact);
+static int applysizehints(Client *c, ssize_t *x, ssize_t *y, ssize_t *w, ssize_t *h, int interact);
 static void arrange(Monitor *m);
 static void arrangemon(Monitor *m);
 static void attach(Client *c);
@@ -201,8 +242,8 @@ static Client *nexttiled(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
-static Monitor *recttomon(size_t x, size_t y, size_t w, size_t h);
-static void resize(Client *c, size_t x, size_t y, size_t w, size_t h, int interact);
+static Monitor *recttomon(ssize_t x, ssize_t y, ssize_t w, ssize_t h);
+static void resize(Client *c, ssize_t x, ssize_t y, ssize_t w, ssize_t h, int interact);
 static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void restack(Monitor *m);
@@ -257,10 +298,13 @@ void movestack(const Arg *arg);
 static const char broken[] = "broken";
 static char stext[256];
 static int screen;
-static size_t sw, sh;           /* X display screen geometry width, height */
-static size_t bh, blw = 0;      /* bar geometry */
+static ssize_t sw, sh;           /* X display screen geometry width, height */
+static ssize_t bh, blw = 0;      /* bar geometry */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static uint32_t numlockmask = 0;
+
+
+#if 0
 static void (*handler[LASTEvent]) (XEvent *) = {
 	[ButtonPress] = buttonpress,
 	[ClientMessage] = clientmessage,
@@ -277,6 +321,11 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[PropertyNotify] = propertynotify,
 	[UnmapNotify] = unmapnotify
 };
+#else
+static void (*handler[LASTEvent]) (XEvent *); /* for c++ implementation */
+#endif
+
+
 static Atom wmatom[WMLast], netatom[NetLast];
 static int running = 1;
 static Cur *cursor[CurLast];
@@ -329,7 +378,7 @@ applyrules(Client *c)
 }
 
 int
-applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int interact)
+applysizehints(Client *c, ssize_t *x, ssize_t *y, ssize_t *w, ssize_t *h, int interact)
 {
 	int baseismin;
 	Monitor *m = c->mon;
@@ -489,7 +538,8 @@ checkotherwm(void)
 void
 cleanup(void)
 {
-	Arg a = {.ui = ~0}; // SLANK c-stlye struct init
+	//Arg a = {.ui = ~0}; // SLANK c-stlye struct init
+	Arg a = {.ui = UINT_MAX}; // SLANK c-stlye struct init
 	Layout foo = { "", NULL };
 
 	view(&a);
@@ -500,9 +550,9 @@ cleanup(void)
 	XUngrabKey(dpy, AnyKey, AnyModifier, root);
 	while (mons)
 		cleanupmon(mons);
-	for (size_t i = 0; i < CurLast; i++)
+	for (ssize_t i = 0; i < CurLast; i++)
 		drw_cur_free(drw, cursor[i]);
-	for (size_t i = 0; i < SchemeLast; i++) {
+	for (ssize_t i = 0; i < SchemeLast; i++) {
 		drw_clr_free(scheme[i].border);
 		drw_clr_free(scheme[i].bg);
 		drw_clr_free(scheme[i].fg);
@@ -591,7 +641,7 @@ configurenotify(XEvent *e)
 
 	/* TODO: updategeom handling sucks, needs to be simplified */
 	if (ev->window == root) {
-		dirty = (sw != (size_t)(ev->width) || sh != (size_t)(ev->height));
+		dirty = (sw != (ssize_t)(ev->width) || sh != (ssize_t)(ev->height));
 		sw = ev->width;
 		sh = ev->height;
 		if (updategeom() || dirty) {
@@ -710,7 +760,7 @@ detachstack(Client *c)
 void
 drawbar(Monitor *m)
 {
-	size_t x, xx, w, dx;
+	ssize_t x, xx, w, dx;
 	uint32_t i, occ = 0, urg = 0;
 	Client *c;
 
@@ -971,7 +1021,7 @@ grabkeys(void)
 
 #ifdef XINERAMA
 static int
-isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
+isuniquegeom(XineramaScreenInfo *unique, ssize_t n, XineramaScreenInfo *info)
 {
 	while (n--)
 		if (unique[n].x_org == info->x_org && unique[n].y_org == info->y_org
@@ -1164,8 +1214,8 @@ movemouse(const Arg *arg)
 				continue;
 			lasttime = ev.xmotion.time;
 
-			size_t nx = ocx + (ev.xmotion.x - x);
-			size_t ny = ocy + (ev.xmotion.y - y);
+			ssize_t nx = ocx + (ev.xmotion.x - x);
+			ssize_t ny = ocy + (ev.xmotion.y - y);
 			if (nx >= selmon->wx && nx <= selmon->wx + selmon->ww
 			&& ny >= selmon->wy && ny <= selmon->wy + selmon->wh) {
 				if (abs(selmon->wx - nx) < snap)
@@ -1253,9 +1303,9 @@ quit(const Arg *arg)
 }
 
 Monitor *
-recttomon(size_t x, size_t y, size_t w, size_t h)
+recttomon(ssize_t x, ssize_t y, ssize_t w, ssize_t h)
 {
-	size_t a, area = 0;
+	ssize_t a, area = 0;
 	Monitor *r = selmon;
 	for (Monitor* m = mons; m; m = m->next)
 
@@ -1267,7 +1317,7 @@ recttomon(size_t x, size_t y, size_t w, size_t h)
 }
 
 void
-resize(Client *c, size_t x, size_t y, size_t w, size_t h, int interact)
+resize(Client *c, ssize_t x, ssize_t y, ssize_t w, ssize_t h, int interact)
 {
 	if (applysizehints(c, &x, &y, &w, &h, interact))
 		resizeclient(c, x, y, w, h);
@@ -1775,11 +1825,19 @@ updatebars(void)
 	Monitor *m;
 
     // SLANK: c-stlye struct init
+#if 0
 	XSetWindowAttributes wa = {
 		.override_redirect = true,
 		.background_pixmap = ParentRelative,
 		.event_mask = ButtonPressMask|ExposureMask
 	};
+#else
+    XSetWindowAttributes wa;
+    memset(&wa, 0, sizeof wa);
+	wa.override_redirect = true;
+	wa.background_pixmap = ParentRelative;
+	wa.event_mask = ButtonPressMask|ExposureMask;
+#endif
 	for (m = mons; m; m = m->next) {
 		if (m->barwin)
 			continue;
@@ -2128,9 +2186,36 @@ zoom(const Arg *arg)
 	pop(c);
 }
 
+void
+init_global_values()
+{
+    memset(&handler, 0, sizeof(handler));
+	handler[ButtonPress] = buttonpress;
+	handler[ClientMessage] = clientmessage;
+	handler[ConfigureRequest] = configurerequest;
+	handler[ConfigureNotify] = configurenotify;
+	handler[DestroyNotify] = destroynotify;
+	handler[EnterNotify] = enternotify;
+	handler[Expose] = expose;
+	handler[FocusIn] = focusin;
+	handler[KeyPress] = keypress;
+	handler[MappingNotify] = mappingnotify;
+	handler[MapRequest] = maprequest;
+	handler[MotionNotify] = motionnotify;
+	handler[PropertyNotify] = propertynotify;
+	handler[UnmapNotify] = unmapnotify;
+
+
+    /* memset(rules, 0, sizeof(rules)); */
+}
+
+
 int
 main(int argc, char *argv[])
-{
+{   
+    init_global_values(); /* for c++ implementation */
+
+    
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("dwm-"VERSION "\n");
 	else if (argc != 1)
