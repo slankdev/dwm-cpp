@@ -58,8 +58,8 @@
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
-                               * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
+#define INTERSECT(x,y,w,h,m)    (MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx) \
+                               * MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
 #define LENGTH(X)               (size_t)(sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
@@ -1254,6 +1254,7 @@ recttomon(size_t x, size_t y, size_t w, size_t h)
 	size_t a, area = 0;
 	Monitor *r = selmon;
 	for (Monitor* m = mons; m; m = m->next)
+
 		if ((a = INTERSECT(x, y, w, h, m)) > area) {
 			area = a;
 			r = m;
