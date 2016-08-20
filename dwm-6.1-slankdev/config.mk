@@ -31,7 +31,9 @@ CPPFLAGS += -D_DEFAULT_SOURCE
 CXXFLAGS   =  -std=c++11
 CXXFLAGS   += -pedantic
 CXXFLAGS   += -Wall -Wextra
-CXXFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter -Wno-literal-suffix
+CXXFLAGS   += -Wno-deprecated-declarations
+CXXFLAGS   += -Wno-unused-parameter
+# CXXFLAGS   += -Wno-literal-suffix
 CXXFLAGS   += -g -O0 -Os ${INCS} ${CPPFLAGS}
 CXXFLAGS += -I/usr/include/freetype2
 

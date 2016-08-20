@@ -45,6 +45,8 @@
 #include "drw.h"
 #include "util.h"
 
+#include <algorithm>
+
 
 /* Headers for Additional functon by slankdev */
 #include <sys/types.h>
@@ -58,10 +60,10 @@
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define INTERSECT(x,y,w,h,m)    (MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx) \
-                               * MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy))
+#define INTERSECT(x,y,w,h,m)    (MIN((x)+(w),(m)->wx+(m)->ww) - std::max((x),(m)->wx) \
+                               * MIN((y)+(h),(m)->wy+(m)->wh) - std::max((y),(m)->wy))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define LENGTH(X)               (ssize_t)(sizeof X / sizeof X[0])
+#define LENGTH(X)               (size_t)(sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -126,11 +128,11 @@ typedef struct Client Client;
 struct Client {
 	char name[256];
 	float mina, maxa;
-	ssize_t x, y, w, h;
-	ssize_t oldx, oldy, oldw, oldh;
-	ssize_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
-	ssize_t bw, oldbw;
-	ssize_t tags;
+	size_t x, y, w, h;
+	size_t oldx, oldy, oldw, oldh;
+	size_t basew, baseh, incw, inch, maxw, maxh, minw, minh;
+	size_t bw, oldbw;
+	size_t tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 	Client *next;
 	Client *snext;
@@ -153,11 +155,11 @@ typedef struct {
 struct Monitor {
 	char ltsymbol[16];
 	float mfact;
-	ssize_t nmaster;
+	size_t nmaster;
 	int num;
-	ssize_t by;               /* bar geometry */
-	ssize_t mx, my, mw, mh;   /* screen size */
-	ssize_t wx, wy, ww, wh;   /* window area  */
+	size_t by;               /* bar geometry */
+	size_t mx, my, mw, mh;   /* screen size */
+	size_t wx, wy, ww, wh;   /* window area  */
 	uint32_t seltags;
 	uint32_t sellt;
 	uint32_t tagset[2];
@@ -165,8 +167,8 @@ struct Monitor {
 	bool showbar;
 	bool topbar;
 #else
-	_Bool showbar;
-	_Bool topbar;
+	bool showbar;
+	bool topbar;
 #endif
 	Client *clients;
 	Client *sel;
@@ -187,7 +189,7 @@ typedef struct {
 
 /* function declarations */
 static void applyrules(Client *c);
-static int applysizehints(Client *c, ssize_t *x, ssize_t *y, ssize_t *w, ssize_t *h, int interact);
+static int applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int interact);
 static void arrange(Monitor *m);
 static void arrangemon(Monitor *m);
 static void attach(Client *c);
@@ -229,8 +231,8 @@ static Client *nexttiled(Client *c);
 static void pop(Client *);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
-static Monitor *recttomon(ssize_t x, ssize_t y, ssize_t w, ssize_t h);
-static void resize(Client *c, ssize_t x, ssize_t y, ssize_t w, ssize_t h, int interact);
+static Monitor *recttomon(size_t x, size_t y, size_t w, size_t h);
+static void resize(Client *c, size_t x, size_t y, size_t w, size_t h, int interact);
 static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void restack(Monitor *m);
@@ -285,8 +287,8 @@ void movestack(const Arg *arg);
 static const char broken[] = "broken";
 static char stext[256];
 static int screen;
-static ssize_t sw, sh;           /* X display screen geometry width, height */
-static ssize_t bh, blw = 0;      /* bar geometry */
+static size_t sw, sh;           /* X display screen geometry width, height */
+static size_t bh, blw = 0;      /* bar geometry */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static uint32_t numlockmask = 0;
 static void (*handler[LASTEvent]) (XEvent *); /* for c++ implementation */
@@ -342,14 +344,14 @@ applyrules(Client *c)
 }
 
 int
-applysizehints(Client *c, ssize_t *x, ssize_t *y, ssize_t *w, ssize_t *h, int interact)
+applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int interact)
 {
 	int baseismin;
 	Monitor *m = c->mon;
 
 	/* set minimum possible */
-	*w = MAX(1, *w);
-	*h = MAX(1, *h);
+	*w = std::max(size_t(1), *w);
+	*h = std::max(size_t(1), *h);
 	if (interact) {
 		if (*x > sw)
 			*x = sw - WIDTH(c);
@@ -393,8 +395,8 @@ applysizehints(Client *c, ssize_t *x, ssize_t *y, ssize_t *w, ssize_t *h, int in
 		if (c->inch)
 			*h -= *h % c->inch;
 		/* restore base dimensions */
-		*w = MAX(*w + c->basew, c->minw);
-		*h = MAX(*h + c->baseh, c->minh);
+		*w = std::max(*w + c->basew, c->minw);
+		*h = std::max(*h + c->baseh, c->minh);
 		if (c->maxw)
 			*w = MIN(*w, c->maxw);
 		if (c->maxh)
@@ -514,9 +516,9 @@ cleanup(void)
 	XUngrabKey(dpy, AnyKey, AnyModifier, root);
 	while (mons)
 		cleanupmon(mons);
-	for (ssize_t i = 0; i < CurLast; i++)
+	for (size_t i = 0; i < CurLast; i++)
 		drw_cur_free(drw, cursor[i]);
-	for (ssize_t i = 0; i < SchemeLast; i++) {
+	for (size_t i = 0; i < SchemeLast; i++) {
 		drw_clr_free(scheme[i].border);
 		drw_clr_free(scheme[i].bg);
 		drw_clr_free(scheme[i].fg);
@@ -605,7 +607,7 @@ configurenotify(XEvent *e)
 
 	/* TODO: updategeom handling sucks, needs to be simplified */
 	if (ev->window == root) {
-		dirty = (sw != (ssize_t)(ev->width) || sh != (ssize_t)(ev->height));
+		dirty = (sw != (size_t)(ev->width) || sh != (size_t)(ev->height));
 		sw = ev->width;
 		sh = ev->height;
 		if (updategeom() || dirty) {
@@ -724,7 +726,7 @@ detachstack(Client *c)
 void
 drawbar(Monitor *m)
 {
-	ssize_t x, xx, w, dx;
+	size_t x, xx, w, dx;
 	uint32_t i, occ = 0, urg = 0;
 	Client *c;
 
@@ -985,7 +987,7 @@ grabkeys(void)
 
 #ifdef XINERAMA
 static int
-isuniquegeom(XineramaScreenInfo *unique, ssize_t n, XineramaScreenInfo *info)
+isuniquegeom(XineramaScreenInfo *unique, size_t n, XineramaScreenInfo *info)
 {
 	while (n--)
 		if (unique[n].x_org == info->x_org && unique[n].y_org == info->y_org
@@ -1055,9 +1057,9 @@ manage(Window w, XWindowAttributes *wa)
 		c->x = c->mon->mx + c->mon->mw - WIDTH(c);
 	if (c->y + HEIGHT(c) > c->mon->my + c->mon->mh)
 		c->y = c->mon->my + c->mon->mh - HEIGHT(c);
-	c->x = MAX(c->x, c->mon->mx);
+	c->x = std::max(c->x, c->mon->mx);
 	/* only fix client y-offset, if the client center might cover the bar */
-	c->y = MAX(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
+	c->y = std::max(c->y, ((c->mon->by == c->mon->my) && (c->x + (c->w / 2) >= c->mon->wx)
 	           && (c->x + (c->w / 2) < c->mon->wx + c->mon->ww)) ? bh : c->mon->my);
 	c->bw = borderpx;
 
@@ -1178,20 +1180,20 @@ movemouse(const Arg *arg)
 				continue;
 			lasttime = ev.xmotion.time;
 
-			ssize_t nx = ocx + (ev.xmotion.x - x);
-			ssize_t ny = ocy + (ev.xmotion.y - y);
+			size_t nx = ocx + (ev.xmotion.x - x);
+			size_t ny = ocy + (ev.xmotion.y - y);
 			if (nx >= selmon->wx && nx <= selmon->wx + selmon->ww
 			&& ny >= selmon->wy && ny <= selmon->wy + selmon->wh) {
-				if (abs(selmon->wx - nx) < snap)
+				if (/*abs*/(selmon->wx - nx) < snap)
 					nx = selmon->wx;
-				else if (abs((selmon->wx + selmon->ww) - (nx + WIDTH(c))) < snap)
+				else if (/*abs*/((selmon->wx + selmon->ww) - (nx + WIDTH(c))) < snap)
 					nx = selmon->wx + selmon->ww - WIDTH(c);
-				if (abs(selmon->wy - ny) < snap)
+				if (/*abs*/(selmon->wy - ny) < snap)
 					ny = selmon->wy;
-				else if (abs((selmon->wy + selmon->wh) - (ny + HEIGHT(c))) < snap)
+				else if (/*abs*/((selmon->wy + selmon->wh) - (ny + HEIGHT(c))) < snap)
 					ny = selmon->wy + selmon->wh - HEIGHT(c);
 				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
-				&& (abs(nx - c->x) > snap || abs(ny - c->y) > snap))
+				&& (/*abs*/(nx - c->x) > snap || /*abs*/(ny - c->y) > snap))
 					togglefloating(NULL);
 			}
 			if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
@@ -1267,9 +1269,9 @@ quit(const Arg *arg)
 }
 
 Monitor *
-recttomon(ssize_t x, ssize_t y, ssize_t w, ssize_t h)
+recttomon(size_t x, size_t y, size_t w, size_t h)
 {
-	ssize_t a, area = 0;
+	size_t a, area = 0;
 	Monitor *r = selmon;
 	for (Monitor* m = mons; m; m = m->next)
 
@@ -1281,7 +1283,7 @@ recttomon(ssize_t x, ssize_t y, ssize_t w, ssize_t h)
 }
 
 void
-resize(Client *c, ssize_t x, ssize_t y, ssize_t w, ssize_t h, int interact)
+resize(Client *c, size_t x, size_t y, size_t w, size_t h, int interact)
 {
 	if (applysizehints(c, &x, &y, &w, &h, interact))
 		resizeclient(c, x, y, w, h);
@@ -1335,13 +1337,13 @@ resizemouse(const Arg *arg)
 				continue;
 			lasttime = ev.xmotion.time;
 
-			nw = MAX(ev.xmotion.x - ocx - 2 * c->bw + 1, 1);
-			nh = MAX(ev.xmotion.y - ocy - 2 * c->bw + 1, 1);
+			nw = std::max(ev.xmotion.x - ocx - 2 * c->bw + 1, size_t(1));
+			nh = std::max(ev.xmotion.y - ocy - 2 * c->bw + 1, size_t(1));
 			if (c->mon->wx + nw >= selmon->wx && c->mon->wx + nw <= selmon->wx + selmon->ww
 			&& c->mon->wy + nh >= selmon->wy && c->mon->wy + nh <= selmon->wy + selmon->wh)
 			{
 				if (!c->isfloating && selmon->lt[selmon->sellt]->arrange
-				&& (abs(nw - c->w) > snap || abs(nh - c->h) > snap))
+				&& (/*abs*/(nw - c->w) > snap || /*abs*/(nh - c->h) > snap))
 					togglefloating(NULL);
 			}
 			if (!selmon->lt[selmon->sellt]->arrange || c->isfloating)
