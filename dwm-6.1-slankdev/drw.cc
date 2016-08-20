@@ -9,6 +9,8 @@
 #include "drw.h"
 #include "util.h"
 
+#include <string>
+
 #define UTF_INVALID 0xFFFD
 #define UTF_SIZ     4
 
@@ -188,8 +190,14 @@ drw_clr_create(Drw *drw, const char *clrname)
 	clr = (Clr*)ecalloc(1, sizeof(Clr));
 	if (!XftColorAllocName(drw->dpy, DefaultVisual(drw->dpy, drw->screen),
 	                       DefaultColormap(drw->dpy, drw->screen),
-	                       clrname, &clr->rgb))
-		die("error, cannot allocate color '%s'\n", clrname);
+	                       clrname, &clr->rgb)) {
+
+        std::string errstr = "error, cannot allocate color '";
+        errstr += clrname;
+        errstr += "'\n";
+
+		die(errstr.c_str());
+    }
 	clr->pix = clr->rgb.pixel;
 
 	return clr;

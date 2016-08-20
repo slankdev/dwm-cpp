@@ -46,15 +46,8 @@
 #include "util.h"
 
 #include <algorithm>
+#include <string>
 
-
-/* Headers for Additional functon by slankdev */
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <net/if.h>
-#include <arpa/inet.h>
 
 
 /* macros */
@@ -2174,14 +2167,19 @@ main(int argc, char *argv[])
     init_global_values(); /* for c++ implementation */
 
     
-	if (argc == 2 && !strcmp("-v", argv[1]))
-		die("dwm-"VERSION "\n");
-	else if (argc != 1)
+	if (argc == 2 && !strcmp("-v", argv[1])) {
+        std::string errstr = "dwm-";
+        errstr += VERSION;
+        errstr += "\n";
+		die(errstr.c_str());
+    } else if (argc != 1) {
 		die("usage: dwm [-v]\n");
-	if (!setlocale(LC_CTYPE, "") || !XSupportsLocale())
+    } if (!setlocale(LC_CTYPE, "") || !XSupportsLocale()) {
 		fputs("warning: no locale support\n", stderr);
-	if (!(dpy = XOpenDisplay(NULL)))
+    } if (!(dpy = XOpenDisplay(NULL))) {
 		die("dwm: cannot open display\n");
+    }
+
 	checkotherwm();
 	setup();
 	scan();

@@ -17,12 +17,8 @@ ecalloc(ssize_t nmemb, ssize_t size)
 }
 
 void
-die(const char *fmt, ...) {
-	va_list ap;
-
-	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
-	va_end(ap);
+die(const char *fmt) {
+	fprintf(stderr, fmt);
 
 	if (fmt[0] && fmt[strlen(fmt)-1] == ':') {
 		fputc(' ', stderr);
