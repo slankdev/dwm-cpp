@@ -28,14 +28,14 @@ LIBS = -L${X11LIB} -lX11 ${XINERAMALIBS} ${FREETYPELIBS}
 CPPFLAGS =  -D_BSD_SOURCE -D_POSIX_C_SOURCE=2 -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
 CPPFLAGS += -D_DEFAULT_SOURCE 
 
-CFLAGS   =  -std=c++11
-CFLAGS   += -pedantic
-CFLAGS   += -Wall -Wextra
-CFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter -Wno-literal-suffix
-CFLAGS   += -g -O0 -Os ${INCS} ${CPPFLAGS}
+CXXFLAGS   =  -std=c++11
+CXXFLAGS   += -pedantic
+CXXFLAGS   += -Wall -Wextra
+CXXFLAGS   += -Wno-deprecated-declarations -Wno-unused-parameter -Wno-literal-suffix
+CXXFLAGS   += -g -O0 -Os ${INCS} ${CPPFLAGS}
+CXXFLAGS += -I/usr/include/freetype2
 
 LDFLAGS  = -s ${LIBS}
 
-
 # compiler and linker
-CC = g++
+CXX = g++

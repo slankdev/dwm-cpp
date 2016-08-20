@@ -1,5 +1,4 @@
 /* See LICENSE file for copyright and license details. */
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -25,11 +24,8 @@ static const _Bool showbar           = true;        /* 0 means no bar */
 static const _Bool topbar            = true;        /* 0 means bottom bar */
 
 
-
-
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
-
 
 
 static const Rule rules[] = {
@@ -38,8 +34,6 @@ static const Rule rules[] = {
 	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
     {0, NULL, NULL, 0, 0, 0}
 };
-
-
 
 
 /* layout(s) */
@@ -52,7 +46,6 @@ static const Layout layouts[] = {
 	{ "[]=",      tile },    /* first entry is default */
 	{ "[M]",      monocle },
 };
-
 
 
 #define MODKEY Mod1Mask /* key definitions */
@@ -74,7 +67,6 @@ static const char *termcmd[]    = { "urxvt"   , NULL };
 static const char *browsercmd[] = { "chromium", NULL };
 
 
-// SLANK: c-style struct init
 static Key keys[] = {
 	/* modifier                     key        function        argument */
     { MODKEY,                       XK_l,      view_right,     {0} }, // by slankdev
@@ -109,10 +101,6 @@ static Key keys[] = {
 };
 
 
-
-
-
-// SLANK: c-style struct init
 /* button definitions */
 /* click can be ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
@@ -129,4 +117,3 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
-

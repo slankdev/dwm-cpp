@@ -3,31 +3,21 @@
 
 include config.mk
 
-SRC = drw.c dwm.c util.c
-OBJ = ${SRC:.c=.o}
-CFLAGS += -I/usr/include/freetype2
+SRC = drw.cc dwm.cc util.cc
+OBJ = $(SRC:.cc=.o)
 
 all: dwm
+re: clean all
 
-options:
-	@echo dwm build options:
-	@echo "CFLAGS   = ${CFLAGS}"
-	@echo "LDFLAGS  = ${LDFLAGS}"
-	@echo "CC       = ${CC}"
-
-.c.o:
-	@echo CC $<
-	@${CC} -c ${CFLAGS} $<
+.cc.o:
+	@echo CXX $<
+	@${CXX} -c ${CXXFLAGS} $<
 
 ${OBJ}: config.h config.mk
 
-config.h:
-	@echo creating $@ from config.def.h
-	@cp config.def.h $@
-
 dwm: ${OBJ}
-	@echo CC -o $@
-	@${CC} -o $@ ${OBJ} ${LDFLAGS}
+	@echo CXX -o $@
+	@${CXX} -o $@ ${OBJ} ${LDFLAGS}
 
 clean:
 	@echo cleaning
@@ -59,6 +49,4 @@ uninstall:
 	@rm -f ${DESTDIR}${MANPREFIX}/man1/dwm.1
 
 .PHONY: all options clean dist install uninstall
-
-re: clean all
 
