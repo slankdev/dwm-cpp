@@ -21,8 +21,8 @@ static const char selbgcolor[]      = "#005577";
 static const char selfgcolor[]      = "#eeeeee";
 static const size_t borderpx        = 3;        /* border pixel of windows Like xmonad */
 static const uint32_t snap          = 32;       /* snap pixel */
-static const bool showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
+static const _Bool showbar           = true;        /* 0 means no bar */
+static const _Bool topbar            = true;        /* 0 means bottom bar */
 
 
 

@@ -133,8 +133,8 @@ struct Monitor {
 	uint32_t seltags;
 	uint32_t sellt;
 	uint32_t tagset[2];
-	int showbar;
-	int topbar;
+	_Bool showbar;
+	_Bool topbar;
 	Client *clients;
 	Client *sel;
 	Client *stack;
@@ -1790,10 +1790,10 @@ updatebarpos(Monitor *m)
 {
 	m->wy = m->my;
 	m->wh = m->mh;
-	if (m->showbar) {
+	if (m->showbar == true) {
 		m->wh -= bh;
-		m->by = m->topbar ? m->wy : m->wy + m->wh;
-		m->wy = m->topbar ? m->wy + bh : m->wy;
+		m->by = m->topbar==true ? m->wy : m->wy + m->wh;
+		m->wy = m->topbar==true ? m->wy + bh : m->wy;
 	} else
 		m->by = -bh;
 }
