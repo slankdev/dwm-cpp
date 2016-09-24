@@ -494,8 +494,7 @@ checkotherwm(void)
 void
 cleanup(void)
 {
-	//Arg a = {.ui = ~0}; // SLANK c-stlye struct init
-	Arg a = Arg::set_ui(UINT_MAX); // SLANK c-stlye struct init
+	Arg a = Arg::set_ui(UINT_MAX); 
 	Layout foo = { "", NULL };
 
 	view(&a);
@@ -768,9 +767,7 @@ drawbar(Monitor *m)
 void
 drawbars(void)
 {
-	Monitor *m;
-
-	for (m = mons; m; m = m->next)
+	for (Monitor *m = mons; m; m = m->next)
 		drawbar(m);
 }
 
@@ -2100,9 +2097,13 @@ main(int argc, char *argv[])
 		die(errstr.c_str());
     } else if (argc != 1) {
 		die("usage: dwm [-v]\n");
-    } if (!setlocale(LC_CTYPE, "") || !XSupportsLocale()) {
+    } 
+    
+    if (!setlocale(LC_CTYPE, "") || !XSupportsLocale()) {
 		fputs("warning: no locale support\n", stderr);
-    } if (!(dpy = XOpenDisplay(NULL))) {
+    } 
+    
+    if (!(dpy = XOpenDisplay(NULL))) {
 		die("dwm: cannot open display\n");
     }
 

@@ -11,7 +11,7 @@ re: clean all
 
 .cc.o:
 	@echo CXX $<
-	@${CXX} -c ${CXXFLAGS} $<
+	@${CXX} -c -g ${CXXFLAGS} $<
 
 ${OBJ}: config.h config.mk
 

@@ -8,7 +8,6 @@
 
 #include "drw.h"
 #include "util.h"
-
 #include <string>
 
 #define UTF_INVALID 0xFFFD
