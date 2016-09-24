@@ -70,10 +70,10 @@ static const char *browsercmd[] = { "chromium", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
-    { MODKEY,                       XK_l,      view_right,     {0} }, // by slankdev
-    { MODKEY,                       XK_h,      view_left,      {0} }, // by slankdev
-    { MODKEY|ShiftMask|ControlMask, XK_l,      view_right,     {0} }, // by slankdev
-    { MODKEY|ShiftMask|ControlMask, XK_h,      view_left,      {0} }, // by slankdev
+    { MODKEY,                       XK_l,      slankdev_view_right,     {0} },
+    { MODKEY,                       XK_h,      slankdev_view_left,      {0} },
+    { MODKEY|ShiftMask|ControlMask, XK_l,      slankdev_view_right,     {0} },
+    { MODKEY|ShiftMask|ControlMask, XK_h,      slankdev_view_left,      {0} },
 	{ MODKEY,                       XK_p,      spawn,          Arg::set_v(dmenucmd) },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          Arg::set_v(termcmd) },
 	{ MODKEY,                       XK_f,      spawn,          Arg::set_v(browsercmd) },
@@ -84,8 +84,8 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_l,      setmfact,       Arg::set_f(0.05) },
 	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
-	{ MODKEY|ShiftMask,             XK_j,      movestack,      Arg::set_i(+1) },
-	{ MODKEY|ShiftMask,             XK_k,      movestack,      Arg::set_i(-1) },
+	{ MODKEY|ShiftMask,             XK_j,      slankdev_movestack,      Arg::set_i(+1) },
+	{ MODKEY|ShiftMask,             XK_k,      slankdev_movestack,      Arg::set_i(-1) },
 
     { MODKEY,                       XK_1,      view,           Arg::set_ui(1 << 0) },
     { MODKEY,                       XK_2,      view,           Arg::set_ui(1 << 1) },

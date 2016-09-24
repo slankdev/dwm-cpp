@@ -262,9 +262,9 @@ static void zoom(const Arg *arg);
 
 
 /* These are added by slankdev, with geeks help */ 
-static void view_left(const Arg *arg);
-static void view_right(const Arg *arg);
-void movestack(const Arg *arg);
+static void slankdev_view_left(const Arg *arg);
+static void slankdev_view_right(const Arg *arg);
+void slankdev_movestack(const Arg *arg);
 
 
 /* variables */
@@ -1946,7 +1946,7 @@ view(const Arg *arg)
 }
 
 void
-view_right(const Arg* arg)
+slankdev_view_right(const Arg* arg)
 {
     uint32_t mon = (selmon->tagset[selmon->seltags]<<1);
 	selmon->seltags ^= 1; /* toggle sel tagset */
@@ -1960,7 +1960,7 @@ view_right(const Arg* arg)
 }
 
 void
-view_left(const Arg* arg)
+slankdev_view_left(const Arg* arg)
 {
     uint32_t mon = (selmon->tagset[selmon->seltags]>>1);
 	selmon->seltags ^= 1; /* toggle sel tagset */
@@ -2112,7 +2112,7 @@ main(int argc, char *argv[])
 }
 
 void
-movestack(const Arg *arg) {
+slankdev_movestack(const Arg *arg) {
 	Client *c = NULL, *p = NULL, *pc = NULL, *i;
 
 	if(arg->i > 0) {
