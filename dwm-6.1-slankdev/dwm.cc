@@ -50,10 +50,10 @@
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define INTERSECT(x,y,w,h,m)    (MIN((x)+(w),(m)->wx+(m)->ww) - std::max((x),(m)->wx) \
-                               * MIN((y)+(h),(m)->wy+(m)->wh) - std::max((y),(m)->wy))
+#define INTERSECT(x,y,w,h,m)    (std::min((x)+(w),(m)->wx+(m)->ww) - std::max((x),(m)->wx) \
+                               * std::min((y)+(h),(m)->wy+(m)->wh) - std::max((y),(m)->wy))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define LENGTH(X)               (size_t)(sizeof X / sizeof X[0])
+#define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -105,16 +105,15 @@ struct Arg {
 
 
 
-typedef struct {
+struct Button {
 	uint32_t click;
 	uint32_t mask;
 	uint32_t button;
 	void (*func)(const Arg *arg);
 	const Arg arg;
-} Button;
+};
 
-typedef struct Monitor Monitor;
-typedef struct Client Client;
+struct Monitor;
 struct Client {
 	char name[256];
 	float mina, maxa;
@@ -130,17 +129,17 @@ struct Client {
 	Window win;
 };
 
-typedef struct {
+struct Key {
 	uint32_t mod;
 	KeySym keysym;
 	void (*func)(const Arg *);
 	const Arg arg;
-} Key;
+};
 
-typedef struct {
+struct Layout {
 	const char *symbol;
 	void (*arrange)(Monitor *);
-} Layout;
+};
 
 struct Monitor {
 	char ltsymbol[16];
@@ -153,13 +152,8 @@ struct Monitor {
 	uint32_t seltags;
 	uint32_t sellt;
 	uint32_t tagset[2];
-#if __cplusplus
 	bool showbar;
 	bool topbar;
-#else
-	bool showbar;
-	bool topbar;
-#endif
 	Client *clients;
 	Client *sel;
 	Client *stack;
@@ -168,14 +162,14 @@ struct Monitor {
 	const Layout *lt[2];
 };
 
-typedef struct {
+struct Rule {
 	const char *class_;
 	const char *instance;
 	const char *title;
 	uint32_t tags;
 	int isfloating;
 	int monitor;
-} Rule;
+};
 
 /* function declarations */
 static void applyrules(Client *c);
@@ -388,9 +382,9 @@ applysizehints(Client *c, size_t *x, size_t *y, size_t *w, size_t *h, int intera
 		*w = std::max(*w + c->basew, c->minw);
 		*h = std::max(*h + c->baseh, c->minh);
 		if (c->maxw)
-			*w = MIN(*w, c->maxw);
+			*w = std::min(*w, c->maxw);
 		if (c->maxh)
-			*h = MIN(*h, c->maxh);
+			*h = std::min(*h, c->maxh);
 	}
 	return *x != c->x || *y != c->y || *w != c->w || *h != c->h;
 }
@@ -1634,7 +1628,8 @@ tag(const Arg *arg)
 void
 tile(Monitor *m)
 {
-	uint32_t i, n, h, mw, my, ty;
+	uint32_t i, h, mw, my, ty;
+    size_t n;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
@@ -1647,7 +1642,7 @@ tile(Monitor *m)
 		mw = m->ww;
 	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			h = (m->wh - my) / (std::min(n, m->nmaster) - i);
 			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
 			my += HEIGHT(c);
 		} else {

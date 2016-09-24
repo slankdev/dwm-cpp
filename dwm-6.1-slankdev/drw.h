@@ -33,7 +33,7 @@ typedef struct {
 	Drawable drawable;
 	GC gc;
 	ClrScheme *scheme;
-	ssize_t fontcount;
+	size_t fontcount;
 	Fnt *fonts[DRW_FONT_CACHE_SIZE];
 } Drw;
 
@@ -49,7 +49,7 @@ void drw_free(Drw *);
 
 /* Fnt abstraction */
 Fnt *drw_font_create(Drw *, const char *);
-void drw_load_fonts(Drw *, const char *[], ssize_t);
+void drw_load_fonts(Drw *, const char *[], size_t);
 void drw_font_free(Fnt *);
 void drw_font_getexts(Fnt *, const char *, uint32_t, Extnts *);
 uint32_t drw_font_getexts_width(Fnt *, const char *, uint32_t);

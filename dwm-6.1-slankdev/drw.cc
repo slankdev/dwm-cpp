@@ -9,6 +9,7 @@
 #include "drw.h"
 #include "util.h"
 #include <string>
+#include <algorithm>
 
 #define UTF_INVALID 0xFFFD
 #define UTF_SIZ     4
@@ -19,7 +20,7 @@ static const long utfmin[UTF_SIZ + 1] = {       0,    0,  0x80,  0x800,  0x10000
 static const long utfmax[UTF_SIZ + 1] = {0x10FFFF, 0x7F, 0x7FF, 0xFFFF, 0x10FFFF};
 
 static long
-utf8decodebyte(const char c, ssize_t *i)
+utf8decodebyte(const char c, size_t *i)
 {
 	for (*i = 0; *i < (UTF_SIZ + 1); ++(*i))
 		if (((unsigned char)c & utfmask[*i]) == utfbyte[*i])
@@ -27,8 +28,8 @@ utf8decodebyte(const char c, ssize_t *i)
 	return 0;
 }
 
-static ssize_t
-utf8validate(long *u, ssize_t i)
+static size_t
+utf8validate(long *u, size_t i)
 {
 	if (!BETWEEN(*u, utfmin[i], utfmax[i]) || BETWEEN(*u, 0xD800, 0xDFFF))
 		*u = UTF_INVALID;
@@ -37,10 +38,11 @@ utf8validate(long *u, ssize_t i)
 	return i;
 }
 
-static ssize_t
-utf8decode(const char *c, long *u, ssize_t clen)
+static size_t
+utf8decode(const char *c, long *u, size_t clen)
 {
-	ssize_t i, j, len, type;
+	size_t i, j, type;
+    size_t len;
 	long udecoded;
 
 	*u = UTF_INVALID;
@@ -94,7 +96,7 @@ drw_resize(Drw *drw, uint32_t w, uint32_t h)
 void
 drw_free(Drw *drw)
 {
-	ssize_t i;
+	size_t i;
 
 	for (i = 0; i < drw->fontcount; i++)
 		drw_font_free(drw->fonts[i]);
@@ -156,12 +158,11 @@ drw_font_create(Drw *drw, const char *fontname)
 }
 
 void
-drw_load_fonts(Drw* drw, const char *fonts[], ssize_t fontcount)
+drw_load_fonts(Drw* drw, const char *fonts[], size_t fontcount)
 {
-	ssize_t i;
 	Fnt *font;
 
-	for (i = 0; i < fontcount; i++) {
+	for (size_t i = 0; i < fontcount; i++) {
 		if (drw->fontcount >= DRW_FONT_CACHE_SIZE) {
 			die("font cache exhausted.\n");
 		} else if ((font = drw_font_xcreate(drw, fonts[i], NULL))) {
@@ -234,8 +235,8 @@ drw_text(Drw *drw, int x, int y, uint32_t w, uint32_t h, const char *text, int i
 	Extnts tex;
 	XftDraw *d = NULL;
 	Fnt *curfont, *nextfont;
-	ssize_t i, len;
-	uint32_t utf8strlen, utf8charlen;
+	size_t len;
+	size_t utf8strlen, utf8charlen;
     int render;
 	long utf8codepoint = 0;
 	const char *utf8str;
@@ -266,7 +267,7 @@ drw_text(Drw *drw, int x, int y, uint32_t w, uint32_t h, const char *text, int i
 		nextfont = NULL;
 		while (*text) {
 			utf8charlen = utf8decode(text, &utf8codepoint, UTF_SIZ);
-			for (i = 0; i < drw->fontcount; i++) {
+			for (size_t i = 0; i < drw->fontcount; i++) {
 				charexists = charexists || XftCharExists(drw->dpy, drw->fonts[i]->xfont, utf8codepoint);
 				if (charexists) {
 					if (drw->fonts[i] == curfont) {
@@ -288,14 +289,14 @@ drw_text(Drw *drw, int x, int y, uint32_t w, uint32_t h, const char *text, int i
 		if (utf8strlen) {
 			drw_font_getexts(curfont, utf8str, utf8strlen, &tex);
 			/* shorten text if necessary */
-			for (len = MIN(utf8strlen, (sizeof buf) - 1); len && (tex.w > w - drw->fonts[0]->h || w < drw->fonts[0]->h); len--)
+			for (len = std::min(utf8strlen, (sizeof buf) - 1); len && (tex.w > w - drw->fonts[0]->h || w < drw->fonts[0]->h); len--)
 				drw_font_getexts(curfont, utf8str, len, &tex);
 
 			if (len) {
 				memcpy(buf, utf8str, len);
 				buf[len] = '\0';
 				if (len < utf8strlen)
-					for (i = len; i && i > len - 3; buf[--i] = '.');
+					for (size_t i = len; i && i > len - 3; buf[--i] = '.');
 
 				if (render) {
 					th = curfont->ascent + curfont->descent;
