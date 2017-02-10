@@ -10,8 +10,8 @@
 
 
 /* appearance */
-static const char *fonts[]          = { "monospace:size=17" };
-static const char dmenufont[]       = "monospace:size=17";
+static const char *fonts[]          = { "monospace:size=11" };
+static const char dmenufont[]       = "monospace:size=11";
 static const char normbordercolor[] = "#444444";
 static const char normbgcolor[]     = "#222222";
 static const char normfgcolor[]     = "#bbbbbb";
@@ -32,7 +32,7 @@ static const Rule rules[] = {
 	/* class      instance    title       tags mask     isfloating   monitor */
 	// { "Gimp",     NULL,       NULL,       0,            1,           -1 },
 	// { "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
-    {"Chromium", NULL, NULL, 1 << 8, 1, -1},
+    {"webbrowser", NULL, NULL, 1 << 8, 1, -1},
     {0, NULL, NULL, 0, 0, 0}
 };
 
@@ -55,13 +55,13 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", 
-    "-m", dmenumon    , 
-    "-fn", dmenufont  , 
-    "-nb", normbgcolor, 
-    "-nf", normfgcolor, 
-    "-sb", selbgcolor , 
-    "-sf", selfgcolor , 
+static const char *dmenucmd[] = { "dmenu_run",
+    "-m", dmenumon    ,
+    "-fn", dmenufont  ,
+    "-nb", normbgcolor,
+    "-nf", normfgcolor,
+    "-sb", selbgcolor ,
+    "-sf", selfgcolor ,
     NULL };
 
 static const char *termcmd[]    = { "urxvt"   , NULL };
@@ -93,12 +93,12 @@ static Key keys[] = {
     { MODKEY,                       XK_4,      view,           Arg::set_ui(1 << 3) },
     { MODKEY,                       XK_5,      view,           Arg::set_ui(1 << 4) },
     { MODKEY,                       XK_6,      view,           Arg::set_ui(1 << 5) },
-	{ MODKEY|ShiftMask,             XK_1,      tag,            Arg::set_ui(1 << 0) }, 
-	{ MODKEY|ShiftMask,             XK_2,      tag,            Arg::set_ui(1 << 1) }, 
-	{ MODKEY|ShiftMask,             XK_3,      tag,            Arg::set_ui(1 << 2) }, 
-	{ MODKEY|ShiftMask,             XK_4,      tag,            Arg::set_ui(1 << 3) }, 
-	{ MODKEY|ShiftMask,             XK_5,      tag,            Arg::set_ui(1 << 4) }, 
-	{ MODKEY|ShiftMask,             XK_6,      tag,            Arg::set_ui(1 << 5) }, 
+	{ MODKEY|ShiftMask,             XK_1,      tag,            Arg::set_ui(1 << 0) },
+	{ MODKEY|ShiftMask,             XK_2,      tag,            Arg::set_ui(1 << 1) },
+	{ MODKEY|ShiftMask,             XK_3,      tag,            Arg::set_ui(1 << 2) },
+	{ MODKEY|ShiftMask,             XK_4,      tag,            Arg::set_ui(1 << 3) },
+	{ MODKEY|ShiftMask,             XK_5,      tag,            Arg::set_ui(1 << 4) },
+	{ MODKEY|ShiftMask,             XK_6,      tag,            Arg::set_ui(1 << 5) },
 };
 
 
