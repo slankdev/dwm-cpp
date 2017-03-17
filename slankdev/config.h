@@ -9,14 +9,31 @@
         );
 
 
-/* appearance */
-static const char *fonts[]          = { "monospace:size=11" };
-static const char dmenufont[]       = "monospace:size=11";
+/*
+ * Appearance
+ */
+
+
+/*
+ * Statusbar Font
+ */
+#define fonts_MBP     fonts
+#define dmenufont_MBP dmenufont
+static const char *fonts_MBP[]      = { "monospace:size=18" };
+static const char dmenufont_MBP[]   = "monospace:size=18";
+static const char *fonts_VAIO[]     = { "monospace:size=18" };
+static const char dmenufont_VAIO[]  = "monospace:size=18";
+
 static const char normbordercolor[] = "#444444";
 static const char normbgcolor[]     = "#222222";
 static const char normfgcolor[]     = "#bbbbbb";
-static const char selbordercolor[]  = "#005577";
-static const char selbgcolor[]      = "#005577";
+
+/*
+ * Theme Color Config
+ */
+static const char selbordercolor[]  = "#8b0000";
+static const char selbgcolor[]      = "#8b0000";
+
 static const char selfgcolor[]      = "#eeeeee";
 static const size_t borderpx        = 3;        /* border pixel of windows Like xmonad */
 static const uint32_t snap          = 32;       /* snap pixel */
@@ -25,7 +42,7 @@ static const bool topbar            = true;        /* 0 means bottom bar */
 
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6" };
+static const char *tags[] = { "1", "2", "3", "4", "5" };
 
 
 static const Rule rules[] = {
